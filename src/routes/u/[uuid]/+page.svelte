@@ -88,7 +88,7 @@
 		</div>
 
 		<!-- Username -->
-		<h1 class="username">@{data.user.username}</h1>
+		<h1 class="username"><a href={"https://github.com/" + data.user.username} target="_blank">@{data.user.username}</a></h1>
 
 		<!-- UUID display -->
 		<div class="uuid-block">
