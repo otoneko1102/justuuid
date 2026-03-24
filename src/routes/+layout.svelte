@@ -9,9 +9,19 @@
 
 	const T = $derived(t(data.lang));
 
+	let menuOpen = $state(false);
+
 	async function setLang(lang: 'en' | 'ja') {
 		document.cookie = `lang=${lang}; path=/; max-age=31536000; SameSite=Lax`;
 		await invalidate('app:lang');
+	}
+
+	function toggleMenu() {
+		menuOpen = !menuOpen;
+	}
+
+	function closeMenu() {
+		menuOpen = false;
 	}
 </script>
 
@@ -30,12 +40,12 @@
 	<!-- ── Header ───────────────────────────────────────────── -->
 	<header>
 		<div class="container header-inner">
-			<a href="/" class="logo">
+			<a href="/" class="logo" onclick={closeMenu}>
 				<span class="logo-text">JustUUID</span>
 			</a>
 
-			<nav class="nav-right">
-				<!-- Language switcher -->
+			<!-- Desktop nav -->
+			<nav class="nav-right nav-desktop">
 				<div class="lang-switcher" role="group" aria-label="Language">
 					<button
 						class="lang-btn"
@@ -73,7 +83,59 @@
 					</a>
 				{/if}
 			</nav>
+
+			<!-- Mobile menu button -->
+			<button class="menu-toggle" onclick={toggleMenu} aria-label="Menu">
+				<span class="mi">{menuOpen ? 'close' : 'menu'}</span>
+			</button>
 		</div>
+
+		<!-- Mobile dropdown -->
+		{#if menuOpen}
+			<div class="mobile-menu">
+				<div class="container mobile-menu-inner">
+					<div class="mobile-menu-row">
+						<div class="lang-switcher" role="group" aria-label="Language">
+							<button
+								class="lang-btn"
+								class:active={data.lang === 'en'}
+								onclick={() => { setLang('en'); closeMenu(); }}
+							>EN</button>
+							<button
+								class="lang-btn"
+								class:active={data.lang === 'ja'}
+								onclick={() => { setLang('ja'); closeMenu(); }}
+							>JA</button>
+						</div>
+					</div>
+
+					{#if data.user}
+						<a href="/u/{data.user.id}" class="mobile-menu-link" onclick={closeMenu}>
+							<img
+								src={data.user.avatar_url}
+								alt={data.user.username}
+								class="nav-avatar"
+							/>
+							<span>@{data.user.username}</span>
+						</a>
+						<a
+							href="/logout"
+							class="mobile-menu-link"
+							data-sveltekit-preload-data="off"
+							onclick={closeMenu}
+						>
+							<span class="mi mi-sm">logout</span>
+							<span>{T.nav.logout}</span>
+						</a>
+					{:else}
+						<a href="/login" class="mobile-menu-link" data-sveltekit-preload-data="off" onclick={closeMenu}>
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+							<span>{T.nav.login}</span>
+						</a>
+					{/if}
+				</div>
+			</div>
+		{/if}
 	</header>
 
 	<!-- ── Main content ─────────────────────────────────────── -->
@@ -181,6 +243,64 @@
 		padding-inline: var(--space-2);
 	}
 
+	/* ── Mobile menu toggle ────────────────────────────────── */
+	.menu-toggle {
+		display: none;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		background: transparent;
+		color: var(--text);
+		cursor: pointer;
+		font-family: var(--font-sans);
+	}
+
+	.mobile-menu {
+		display: none;
+		border-top: 1px solid var(--border);
+		background: rgba(9, 9, 11, 0.95);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		animation: slideDown 0.15s ease;
+	}
+
+	@keyframes slideDown {
+		from { opacity: 0; transform: translateY(-4px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	.mobile-menu-inner {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		padding-block: var(--space-3);
+	}
+
+	.mobile-menu-row {
+		display: flex;
+		align-items: center;
+		padding: var(--space-2) 0;
+	}
+
+	.mobile-menu-link {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-2) var(--space-1);
+		font-size: 0.875rem;
+		color: var(--text-muted);
+		border-radius: var(--radius-sm);
+		transition: all 0.15s ease;
+	}
+
+	.mobile-menu-link:hover {
+		color: var(--text);
+		background: var(--surface);
+	}
+
 	/* ── Main ───────────────────────────────────────────────── */
 	main {
 		flex: 1;
@@ -223,8 +343,16 @@
 
 	/* ── Responsive ─────────────────────────────────────────── */
 	@media (max-width: 600px) {
-		.nav-right {
-			gap: var(--space-2);
+		.nav-desktop {
+			display: none;
+		}
+
+		.menu-toggle {
+			display: inline-flex;
+		}
+
+		.mobile-menu {
+			display: block;
 		}
 
 		.footer-inner {

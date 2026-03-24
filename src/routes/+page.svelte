@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { onMount, onDestroy } from 'svelte';
 	import { t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
@@ -31,6 +32,44 @@
 	function truncateUuid(uuid: string) {
 		return uuid.slice(0, 18) + '\u2026';
 	}
+
+	// Animated UUID
+	const HEX = '0123456789abcdef';
+	const TEMPLATE = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	let animatedChars = $state(generateUuid());
+	let interval: ReturnType<typeof setInterval>;
+
+	function generateUuid(): string[] {
+		return TEMPLATE.split('').map((c) => {
+			if (c === 'x') return HEX[Math.floor(Math.random() * 16)];
+			if (c === 'y') return HEX[Math.floor(Math.random() * 4) + 8];
+			return c; // '-' or '4'
+		});
+	}
+
+	onMount(() => {
+		interval = setInterval(() => {
+			// Mutate 3-5 random hex positions each tick
+			const next = [...animatedChars];
+			const positions = TEMPLATE.split('').reduce<number[]>((acc, c, i) => {
+				if (c === 'x' || c === 'y') acc.push(i);
+				return acc;
+			}, []);
+			const count = 3 + Math.floor(Math.random() * 3);
+			for (let n = 0; n < count; n++) {
+				const idx = positions[Math.floor(Math.random() * positions.length)];
+				const c = TEMPLATE[idx];
+				next[idx] = c === 'y'
+					? HEX[Math.floor(Math.random() * 4) + 8]
+					: HEX[Math.floor(Math.random() * 16)];
+			}
+			animatedChars = next;
+		}, 80);
+	});
+
+	onDestroy(() => {
+		if (interval) clearInterval(interval);
+	});
 </script>
 
 <svelte:head>
@@ -63,9 +102,13 @@
 			</a>
 		{/if}
 
-		<!-- Decorative UUID display -->
+		<!-- Animated UUID display -->
 		<div class="uuid-demo" aria-hidden="true">
-			<span class="mono uuid-demo-text">550e8400-e29b-41d4-a716-446655440000</span>
+			<span class="mono uuid-demo-text">
+				{#each animatedChars as char, i (i)}
+					<span class="uuid-char" class:uuid-sep={char === '-' || (TEMPLATE[i] === '4')}>{char}</span>
+				{/each}
+			</span>
 		</div>
 	</div>
 </section>
@@ -202,12 +245,27 @@
 		border: 1px dashed var(--border);
 		border-radius: var(--radius);
 		background: var(--surface);
+		overflow: hidden;
 	}
 
 	.uuid-demo-text {
 		font-size: 0.875rem;
-		color: var(--text-subtle);
 		letter-spacing: 0.05em;
+		display: inline-flex;
+	}
+
+	.uuid-char {
+		display: inline-block;
+		width: 0.65em;
+		text-align: center;
+		color: var(--accent);
+		text-shadow: 0 0 8px rgba(129, 140, 248, 0.5);
+		transition: color 0.1s ease;
+	}
+
+	.uuid-sep {
+		color: var(--text-subtle);
+		text-shadow: none;
 	}
 
 	/* ── Cosmic banner ──────────────────────────────────────── */
