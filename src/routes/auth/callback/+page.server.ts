@@ -105,7 +105,8 @@ export const load: PageServerLoad = async ({ url, cookies, platform, locals }) =
 	} catch (e) {
 		// Re-throw SvelteKit redirect/error responses
 		if (isRedirect(e) || isHttpError(e)) throw e;
-		// Unexpected error — redirect instead of 500
+		// Log the actual error for debugging in Cloudflare logs
+		console.error('[auth/callback] Unexpected error:', e);
 		redirect(302, '/?error=server');
 	}
 };
