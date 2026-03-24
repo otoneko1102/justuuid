@@ -16,16 +16,11 @@
       // Replace with your actual D1 database ID after running:
       // wrangler d1 create justuuid-db
       "database_id": "b0ca6049-a827-49ea-8eec-be1b26eac33b",
-      "migrations_dir": "migrations",
-    },
+      "migrations_dir": "migrations"
+    }
   ],
 
-  // Non-secret environment variables
-  // Secrets (GITHUB_CLIENT_SECRET, JWT_SECRET) must be set via:
-  // wrangler secret put GITHUB_CLIENT_SECRET
-  // wrangler secret put JWT_SECRET
-  // Or via Cloudflare Pages dashboard → Settings → Environment Variables
-  "vars": {
-    // "GITHUB_CLIENT_ID": "Ov23licSD3ChCYP8gA1e"
-  },
+  // All environment variables are set via Cloudflare Pages dashboard
+  // Settings → Environment Variables
+  "vars": {}
 }
