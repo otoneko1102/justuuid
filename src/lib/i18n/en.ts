@@ -2,6 +2,7 @@ export const en = {
 	meta: {
 		siteName: 'JustUUID',
 		description: 'Your permanent identity, one UUID at a time.',
+		ogDescription: 'Sign in with GitHub and get your own permanent UUID v4. Your identity, forever.',
 	},
 	nav: {
 		home: 'Home',
@@ -24,6 +25,11 @@ export const en = {
 			empty: 'No users yet. Be the first!',
 			viewProfile: 'View',
 			memberSince: 'Joined',
+			registered: 'registered',
+			searchPlaceholder: 'Search by username...',
+			searchResults: '{count} results for "{query}"',
+			noResults: 'No users found for "{query}".',
+			randomHint: 'Showing a random selection. Use search to find specific users.',
 		},
 		cosmic: {
 			banner: 'A UUID v4 collision has been recorded in this system — a 1 in 5.3×10³⁶ event.',
@@ -31,12 +37,14 @@ export const en = {
 	},
 	user: {
 		copyUuid: 'Copy UUID',
+		copyUrl: 'Copy URL',
 		copied: 'Copied!',
 		memberSince: 'Member since',
 		notFound: 'User not found',
 		notFoundDesc: "There's no user with this UUID.",
 		yourPage: 'This is your unique page.',
 		sharePrompt: 'Share this URL with anyone:',
+		ogDescription: '@{username}\'s permanent UUID is {uuid} — assigned on JustUUID.',
 		cosmic: {
 			badge: 'Cosmic Collision',
 			title: 'UUID Collision Detected',

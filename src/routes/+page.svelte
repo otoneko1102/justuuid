@@ -1,10 +1,24 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	const T = $derived(t(data.lang));
+
+	let searchInput = $state(data.query);
+
+	function handleSearch(e: Event) {
+		e.preventDefault();
+		const q = searchInput.trim();
+		goto(q ? `/?q=${encodeURIComponent(q)}` : '/', { invalidateAll: true });
+	}
+
+	function clearSearch() {
+		searchInput = '';
+		goto('/', { invalidateAll: true });
+	}
 
 	function formatDate(iso: string, lang: 'en' | 'ja') {
 		return new Date(iso).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', {
@@ -15,12 +29,18 @@
 	}
 
 	function truncateUuid(uuid: string) {
-		return uuid.slice(0, 18) + '…';
+		return uuid.slice(0, 18) + '\u2026';
 	}
 </script>
 
 <svelte:head>
 	<title>JustUUID — {T.meta.description}</title>
+	<meta name="description" content={T.meta.ogDescription} />
+	<meta property="og:title" content="JustUUID — {T.meta.description}" />
+	<meta property="og:description" content={T.meta.ogDescription} />
+	<meta property="og:image" content={`${data.origin}/favicon.svg`} />
+	<meta name="twitter:title" content="JustUUID — {T.meta.description}" />
+	<meta name="twitter:description" content={T.meta.ogDescription} />
 </svelte:head>
 
 <!-- ── Hero ─────────────────────────────────────────────────── -->
@@ -63,11 +83,44 @@
 <!-- ── User list ─────────────────────────────────────────────── -->
 <section class="users-section">
 	<div class="container">
-		<h2 class="section-title">{T.home.users.title}</h2>
+		<div class="section-header">
+			<h2 class="section-title">{T.home.users.title}</h2>
+			{#if data.totalCount > 0}
+				<span class="user-count">{data.totalCount} {T.home.users.registered}</span>
+			{/if}
+		</div>
+
+		<!-- Search bar -->
+		<form class="search-form" onsubmit={handleSearch}>
+			<div class="search-input-wrap">
+				<span class="mi mi-sm search-icon">search</span>
+				<input
+					type="text"
+					class="search-input"
+					placeholder={T.home.users.searchPlaceholder}
+					bind:value={searchInput}
+				/>
+				{#if searchInput}
+					<button type="button" class="search-clear" onclick={clearSearch}>
+						<span class="mi mi-sm">close</span>
+					</button>
+				{/if}
+			</div>
+		</form>
+
+		{#if data.query && data.users.length > 0}
+			<p class="search-result-count">
+				{T.home.users.searchResults.replace('{count}', String(data.users.length)).replace('{query}', data.query)}
+			</p>
+		{/if}
 
 		{#if data.users.length === 0}
 			<div class="empty-state">
-				<p>{T.home.users.empty}</p>
+				{#if data.query}
+					<p>{T.home.users.noResults.replace('{query}', data.query)}</p>
+				{:else}
+					<p>{T.home.users.empty}</p>
+				{/if}
 			</div>
 		{:else}
 			<div class="user-grid">
@@ -100,6 +153,10 @@
 					</a>
 				{/each}
 			</div>
+
+			{#if !data.query}
+				<p class="random-hint">{T.home.users.randomHint}</p>
+			{/if}
 		{/if}
 	</div>
 </section>
@@ -178,13 +235,96 @@
 		padding-bottom: var(--space-16);
 	}
 
+	.section-header {
+		display: flex;
+		align-items: baseline;
+		gap: var(--space-3);
+		margin-bottom: var(--space-4);
+	}
+
 	.section-title {
 		font-size: 1.125rem;
 		font-weight: 600;
 		color: var(--text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
-		margin-bottom: var(--space-6);
+	}
+
+	.user-count {
+		font-size: 0.8125rem;
+		color: var(--text-subtle);
+	}
+
+	/* ── Search ─────────────────────────────────────────────── */
+	.search-form {
+		margin-bottom: var(--space-4);
+	}
+
+	.search-input-wrap {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		transition: border-color 0.15s ease;
+	}
+
+	.search-input-wrap:focus-within {
+		border-color: var(--accent);
+	}
+
+	.search-icon {
+		color: var(--text-subtle);
+		flex-shrink: 0;
+	}
+
+	.search-input {
+		flex: 1;
+		background: transparent;
+		border: none;
+		outline: none;
+		color: var(--text);
+		font-size: 0.875rem;
+		font-family: var(--font-sans);
+		min-width: 0;
+	}
+
+	.search-input::placeholder {
+		color: var(--text-subtle);
+	}
+
+	.search-clear {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+		border: none;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		border-radius: var(--radius-sm);
+		transition: color 0.15s ease;
+	}
+
+	.search-clear:hover {
+		color: var(--text);
+	}
+
+	.search-result-count {
+		font-size: 0.8125rem;
+		color: var(--text-muted);
+		margin-bottom: var(--space-4);
+	}
+
+	.random-hint {
+		text-align: center;
+		font-size: 0.8125rem;
+		color: var(--text-subtle);
+		margin-top: var(--space-4);
 	}
 
 	.empty-state {

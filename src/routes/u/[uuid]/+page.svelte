@@ -7,12 +7,22 @@
 	const T = $derived(t(data.lang));
 
 	let copied = $state(false);
+	let copiedUrl = $state(false);
 	const shareUrl = $derived(`${data.origin}/u/${data.user.id}`);
+	const ogDesc = $derived(
+		T.user.ogDescription.replace('{username}', data.user.username).replace('{uuid}', data.user.id)
+	);
 
 	async function copyUuid() {
 		await navigator.clipboard.writeText(data.user.id).catch(() => {});
 		copied = true;
 		setTimeout(() => (copied = false), 2000);
+	}
+
+	async function copyUrl() {
+		await navigator.clipboard.writeText(shareUrl).catch(() => {});
+		copiedUrl = true;
+		setTimeout(() => (copiedUrl = false), 2000);
 	}
 
 	function formatDate(iso: string, lang: 'en' | 'ja') {
@@ -26,9 +36,16 @@
 
 <svelte:head>
 	<title>@{data.user.username} — JustUUID</title>
-	<meta name="description" content="@{data.user.username}'s unique UUID on JustUUID" />
+	<meta name="description" content={ogDesc} />
 	<meta property="og:title" content="@{data.user.username} — JustUUID" />
+	<meta property="og:description" content={ogDesc} />
 	<meta property="og:image" content={data.user.avatar_url} />
+	<meta property="og:url" content={shareUrl} />
+	<meta property="og:type" content="profile" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="@{data.user.username} — JustUUID" />
+	<meta name="twitter:description" content={ogDesc} />
+	<meta name="twitter:image" content={data.user.avatar_url} />
 </svelte:head>
 
 <div class="profile-page container">
@@ -39,10 +56,19 @@
 			<span class="mi mi-sm banner-icon">info</span>
 			<div class="owner-banner-content">
 				<span class="banner-title">{T.user.yourPage}</span>
-				<span class="share-row">
+				<div class="share-row">
 					<span class="share-label">{T.user.sharePrompt}</span>
-					<span class="mono share-link">{shareUrl}</span>
-				</span>
+					<div class="share-url-row">
+						<span class="mono share-link">{shareUrl}</span>
+						<button class="btn-copy" onclick={copyUrl} title={T.user.copyUrl}>
+							{#if copiedUrl}
+								<span class="mi mi-sm">check</span>
+							{:else}
+								<span class="mi mi-sm">content_copy</span>
+							{/if}
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	{/if}
@@ -146,20 +172,49 @@
 
 	.share-row {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-2);
+		flex-direction: column;
+		gap: var(--space-1);
 		color: var(--text-muted);
 	}
 
 	.share-label {
-		white-space: nowrap;
+		font-size: 0.8125rem;
+	}
+
+	.share-url-row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		min-width: 0;
 	}
 
 	.share-link {
-		font-size: 0.8125rem;
+		font-size: 0.75rem;
 		color: var(--text);
 		word-break: break-all;
+		min-width: 0;
+	}
+
+	.btn-copy {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 28px;
+		height: 28px;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: all 0.15s ease;
+		font-family: var(--font-sans);
+	}
+
+	.btn-copy:hover {
+		background: var(--surface);
+		color: var(--accent);
+		border-color: var(--accent);
 	}
 
 	/* ── Profile card ───────────────────────────────────────── */
@@ -302,8 +357,36 @@
 	}
 
 	@media (max-width: 480px) {
+		.profile-page {
+			padding-block: var(--space-6) var(--space-8);
+		}
+
 		.profile-card {
-			padding: var(--space-8) var(--space-5);
+			padding: var(--space-6) var(--space-4);
+			border-radius: var(--radius-lg);
+		}
+
+		.owner-banner {
+			padding: var(--space-3);
+		}
+
+		.avatar-wrap, .avatar {
+			width: 80px;
+			height: 80px;
+		}
+
+		.username {
+			font-size: 1.375rem;
+		}
+
+		.uuid {
+			font-size: 0.8125rem;
+			padding: var(--space-2) var(--space-3);
+		}
+
+		.cosmic-event {
+			padding: var(--space-3) var(--space-4);
+			gap: var(--space-3);
 		}
 	}
 </style>

@@ -2,6 +2,7 @@ export const ja = {
 	meta: {
 		siteName: 'JustUUID',
 		description: 'あなただけの永続的なID。',
+		ogDescription: 'GitHubでログインして、あなただけの永続的なUUID v4を取得しましょう。',
 	},
 	nav: {
 		home: 'ホーム',
@@ -24,6 +25,11 @@ export const ja = {
 			empty: 'まだユーザーがいません。最初になりましょう！',
 			viewProfile: '表示',
 			memberSince: '参加',
+			registered: '人登録済み',
+			searchPlaceholder: 'ユーザー名で検索...',
+			searchResults: '「{query}」の検索結果: {count}件',
+			noResults: '「{query}」に一致するユーザーは見つかりませんでした。',
+			randomHint: 'ランダムに表示しています。検索で特定のユーザーを見つけられます。',
 		},
 		cosmic: {
 			banner: 'このシステムでUUID v4の衝突が記録されました — 5.3×10³⁶分の1の出来事です。',
@@ -31,12 +37,14 @@ export const ja = {
 	},
 	user: {
 		copyUuid: 'UUIDをコピー',
+		copyUrl: 'URLをコピー',
 		copied: 'コピーしました！',
 		memberSince: '参加日',
 		notFound: 'ユーザーが見つかりません',
 		notFoundDesc: 'このUUIDに対応するユーザーは存在しません。',
 		yourPage: 'これはあなたのページです。',
 		sharePrompt: 'このURLを誰かと共有しましょう：',
+		ogDescription: '@{username}の永続的なUUIDは {uuid} — JustUUIDにて発行。',
 		cosmic: {
 			badge: '宇宙的衝突',
 			title: 'UUID衝突を検出',

@@ -1,22 +1,26 @@
 import type { PageServerLoad } from './$types';
-import { listUsers, hasAnyCollision } from '$lib/db';
+import { listUsers, searchUsers, countUsers, hasAnyCollision } from '$lib/db';
 
-export const load: PageServerLoad = async ({ platform }) => {
+export const load: PageServerLoad = async ({ platform, url }) => {
 	const db = platform?.env?.DB;
+	const query = url.searchParams.get('q')?.trim() ?? '';
 
 	if (!db) {
-		return { users: [], hasCollision: false };
+		return { users: [], hasCollision: false, totalCount: 0, query };
 	}
 
 	try {
-		const [users, hasCollision] = await Promise.all([
-			listUsers(db, 60),
+		const [hasCollision, totalCount] = await Promise.all([
 			hasAnyCollision(db),
+			countUsers(db),
 		]);
 
-		return { users, hasCollision };
+		const users = query
+			? await searchUsers(db, query, 30)
+			: await listUsers(db, 12);
+
+		return { users, hasCollision, totalCount, query };
 	} catch {
-		// D1 table may not exist yet (migration not applied), degrade gracefully
-		return { users: [], hasCollision: false };
+		return { users: [], hasCollision: false, totalCount: 0, query };
 	}
 };

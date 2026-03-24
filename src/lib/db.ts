@@ -83,13 +83,30 @@ export async function updateUser(
 		.run();
 }
 
-/** Fetch the most recent users for the home page listing. */
-export async function listUsers(db: D1Database, limit = 60): Promise<User[]> {
+/** Fetch a random selection of users for the home page listing. */
+export async function listUsers(db: D1Database, limit = 12): Promise<User[]> {
 	const { results } = await db
-		.prepare('SELECT * FROM users ORDER BY created_at DESC LIMIT ?')
+		.prepare('SELECT * FROM users ORDER BY RANDOM() LIMIT ?')
 		.bind(limit)
 		.all<Record<string, unknown>>();
 	return results.map(mapRow);
+}
+
+/** Search users by username (case-insensitive partial match). */
+export async function searchUsers(db: D1Database, query: string, limit = 30): Promise<User[]> {
+	const { results } = await db
+		.prepare('SELECT * FROM users WHERE username LIKE ? ORDER BY username ASC LIMIT ?')
+		.bind(`%${query}%`, limit)
+		.all<Record<string, unknown>>();
+	return results.map(mapRow);
+}
+
+/** Returns the total number of registered users. */
+export async function countUsers(db: D1Database): Promise<number> {
+	const row = await db
+		.prepare('SELECT COUNT(*) as cnt FROM users')
+		.first<{ cnt: number }>();
+	return row?.cnt ?? 0;
 }
 
 /** Returns true if any user in the DB has ever experienced a UUID collision. */

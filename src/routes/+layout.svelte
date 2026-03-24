@@ -18,6 +18,12 @@
 <svelte:head>
 	<title>{T.meta.siteName}</title>
 	<meta name="description" content={T.meta.description} />
+	<!-- Default OGP (overridden by individual pages) -->
+	<meta property="og:site_name" content="JustUUID" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={`${data.origin}${data.pathname}`} />
+	<meta property="og:locale" content={data.lang === 'ja' ? 'ja_JP' : 'en_US'} />
+	<meta name="twitter:card" content="summary" />
 </svelte:head>
 
 <div class="layout">
