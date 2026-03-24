@@ -1,0 +1,309 @@
+<script lang="ts">
+	import { t } from '$lib/i18n';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+
+	const T = $derived(t(data.lang));
+
+	let copied = $state(false);
+	const shareUrl = $derived(`${data.origin}/u/${data.user.id}`);
+
+	async function copyUuid() {
+		await navigator.clipboard.writeText(data.user.id).catch(() => {});
+		copied = true;
+		setTimeout(() => (copied = false), 2000);
+	}
+
+	function formatDate(iso: string, lang: 'en' | 'ja') {
+		return new Date(iso).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		});
+	}
+</script>
+
+<svelte:head>
+	<title>@{data.user.username} — JustUUID</title>
+	<meta name="description" content="@{data.user.username}'s unique UUID on JustUUID" />
+	<meta property="og:title" content="@{data.user.username} — JustUUID" />
+	<meta property="og:image" content={data.user.avatar_url} />
+</svelte:head>
+
+<div class="profile-page container">
+
+	<!-- Owner banner -->
+	{#if data.isOwner}
+		<div class="owner-banner">
+			<span class="mi mi-sm banner-icon">info</span>
+			<div class="owner-banner-content">
+				<span class="banner-title">{T.user.yourPage}</span>
+				<span class="share-row">
+					<span class="share-label">{T.user.sharePrompt}</span>
+					<span class="mono share-link">{shareUrl}</span>
+				</span>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Profile card -->
+	<div class="profile-card" class:cosmic-profile={data.user.collision_detected}>
+		<!-- Avatar -->
+		<div class="avatar-wrap">
+			<img
+				src={data.user.avatar_url}
+				alt="@{data.user.username}"
+				class="avatar"
+			/>
+			{#if data.user.collision_detected}
+				<div class="cosmic-ring" aria-hidden="true"></div>
+			{/if}
+		</div>
+
+		<!-- Username -->
+		<h1 class="username">@{data.user.username}</h1>
+
+		<!-- UUID display -->
+		<div class="uuid-block">
+			<p class="uuid-label">UUID</p>
+			<p class="uuid mono">{data.user.id}</p>
+		</div>
+
+		<!-- Actions -->
+		<div class="actions">
+			<button class="btn btn-primary" onclick={copyUuid}>
+				{#if copied}
+					<span class="mi mi-sm">check</span>
+					{T.user.copied}
+				{:else}
+					<span class="mi mi-sm">content_copy</span>
+					{T.user.copyUuid}
+				{/if}
+			</button>
+		</div>
+
+		<!-- Member since -->
+		<p class="member-since">
+			<span class="mi mi-sm" style="color: var(--text-subtle)">calendar_today</span>
+			{T.user.memberSince} {formatDate(data.user.created_at, data.lang)}
+		</p>
+	</div>
+
+	<!-- Cosmic collision easter egg -->
+	{#if data.user.collision_detected}
+		<div class="cosmic-event">
+			<span class="mi mi-lg cosmic-icon">casino</span>
+			<div class="cosmic-event-content">
+				<h2>{T.user.cosmic.title}</h2>
+				<p>{T.user.cosmic.description}</p>
+			</div>
+		</div>
+	{/if}
+
+</div>
+
+<style>
+	.profile-page {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding-block: var(--space-12) var(--space-16);
+		gap: var(--space-6);
+		max-width: 560px;
+	}
+
+	/* ── Owner banner ───────────────────────────────────────── */
+	.owner-banner {
+		width: 100%;
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-3);
+		background: rgba(129, 140, 248, 0.08);
+		border: 1px solid rgba(129, 140, 248, 0.2);
+		border-radius: var(--radius);
+		padding: var(--space-3) var(--space-4);
+	}
+
+	.banner-icon {
+		color: var(--accent);
+		flex-shrink: 0;
+		margin-top: 1px;
+	}
+
+	.owner-banner-content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		font-size: 0.875rem;
+		min-width: 0;
+	}
+
+	.banner-title {
+		color: var(--accent);
+		font-weight: 500;
+	}
+
+	.share-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2);
+		color: var(--text-muted);
+	}
+
+	.share-label {
+		white-space: nowrap;
+	}
+
+	.share-link {
+		font-size: 0.8125rem;
+		color: var(--text);
+		word-break: break-all;
+	}
+
+	/* ── Profile card ───────────────────────────────────────── */
+	.profile-card {
+		width: 100%;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-xl);
+		padding: var(--space-12) var(--space-8);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-6);
+		text-align: center;
+	}
+
+	.cosmic-profile {
+		border-color: rgba(240, 171, 252, 0.3);
+		background: linear-gradient(
+			180deg,
+			rgba(240, 171, 252, 0.04) 0%,
+			var(--surface) 40%
+		);
+	}
+
+	/* ── Avatar ─────────────────────────────────────────────── */
+	.avatar-wrap {
+		position: relative;
+		width: 100px;
+		height: 100px;
+	}
+
+	.avatar {
+		width: 100px;
+		height: 100px;
+		border-radius: var(--radius-full);
+		object-fit: cover;
+		border: 3px solid var(--border);
+	}
+
+	.cosmic-ring {
+		position: absolute;
+		inset: -4px;
+		border-radius: var(--radius-full);
+		border: 2px solid transparent;
+		background: linear-gradient(135deg, var(--cosmic), var(--accent)) border-box;
+		-webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+		-webkit-mask-composite: destination-out;
+		mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+		mask-composite: exclude;
+		animation: spin 4s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+
+	/* ── Username ───────────────────────────────────────────── */
+	.username {
+		font-size: 1.625rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+
+	/* ── UUID block ─────────────────────────────────────────── */
+	.uuid-block {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+		width: 100%;
+	}
+
+	.uuid-label {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--text-subtle);
+		font-weight: 600;
+	}
+
+	.uuid {
+		font-size: clamp(0.875rem, 3vw, 1.0625rem);
+		color: var(--accent);
+		letter-spacing: 0.04em;
+		word-break: break-all;
+		padding: var(--space-3) var(--space-4);
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		width: 100%;
+		line-height: 1.6;
+		text-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
+	}
+
+	/* ── Actions ────────────────────────────────────────────── */
+	.actions {
+		display: flex;
+		gap: var(--space-3);
+	}
+
+	/* ── Member since ───────────────────────────────────────── */
+	.member-since {
+		font-size: 0.8125rem;
+		color: var(--text-subtle);
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
+	}
+
+	/* ── Cosmic event ───────────────────────────────────────── */
+	.cosmic-event {
+		width: 100%;
+		display: flex;
+		gap: var(--space-4);
+		align-items: flex-start;
+		padding: var(--space-4) var(--space-5);
+		background: rgba(240, 171, 252, 0.06);
+		border: 1px solid rgba(240, 171, 252, 0.2);
+		border-radius: var(--radius-lg);
+	}
+
+	.cosmic-icon {
+		color: var(--cosmic);
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	.cosmic-event-content h2 {
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: var(--cosmic);
+		margin-bottom: var(--space-1);
+	}
+
+	.cosmic-event-content p {
+		font-size: 0.875rem;
+		color: var(--text-muted);
+		line-height: 1.7;
+	}
+
+	@media (max-width: 480px) {
+		.profile-card {
+			padding: var(--space-8) var(--space-5);
+		}
+	}
+</style>

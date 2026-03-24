@@ -1,0 +1,16 @@
+.svelte-kit/
+.wrangler/
+node_modules/
+build/
+
+# Local dev secrets - NEVER commit this
+.dev.vars
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db

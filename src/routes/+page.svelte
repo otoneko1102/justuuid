@@ -1,0 +1,297 @@
+<script lang="ts">
+	import { t } from '$lib/i18n';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+
+	const T = $derived(t(data.lang));
+
+	function formatDate(iso: string, lang: 'en' | 'ja') {
+		return new Date(iso).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+		});
+	}
+
+	function truncateUuid(uuid: string) {
+		return uuid.slice(0, 18) + '…';
+	}
+</script>
+
+<svelte:head>
+	<title>JustUUID — {T.meta.description}</title>
+</svelte:head>
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<section class="hero">
+	<div class="container hero-inner">
+		<h1 class="hero-title">{T.home.hero.title}</h1>
+		<p class="hero-subtitle">{T.home.hero.subtitle}</p>
+
+		{#if !data.user}
+			<a href="/login" class="btn btn-primary btn-lg hero-cta" data-sveltekit-preload-data="off">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+					<path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+				</svg>
+				{T.home.hero.cta}
+			</a>
+		{:else}
+			<a href="/u/{data.user.id}" class="btn btn-ghost btn-lg hero-cta">
+				{T.nav.myPage}
+				<span class="mi">arrow_forward</span>
+			</a>
+		{/if}
+
+		<!-- Decorative UUID display -->
+		<div class="uuid-demo" aria-hidden="true">
+			<span class="mono uuid-demo-text">550e8400-e29b-41d4-a716-446655440000</span>
+		</div>
+	</div>
+</section>
+
+<!-- ── Cosmic collision banner ───────────────────────────────── -->
+{#if data.hasCollision}
+	<div class="cosmic-banner">
+		<div class="container cosmic-banner-inner">
+			<span class="mi mi-sm" style="color: var(--cosmic)">casino</span>
+			<p>{T.home.cosmic.banner}</p>
+		</div>
+	</div>
+{/if}
+
+<!-- ── User list ─────────────────────────────────────────────── -->
+<section class="users-section">
+	<div class="container">
+		<h2 class="section-title">{T.home.users.title}</h2>
+
+		{#if data.users.length === 0}
+			<div class="empty-state">
+				<p>{T.home.users.empty}</p>
+			</div>
+		{:else}
+			<div class="user-grid">
+				{#each data.users as user (user.id)}
+					<a href="/u/{user.id}" class="user-card" class:cosmic-card={user.collision_detected}>
+						<div class="user-card-header">
+							<img
+								src={user.avatar_url}
+								alt={user.username}
+								class="user-avatar"
+								loading="lazy"
+							/>
+							<div class="user-info">
+								<span class="username">@{user.username}</span>
+								{#if user.collision_detected}
+									<span class="mi mi-sm collision-badge">casino</span>
+								{/if}
+							</div>
+						</div>
+						<p class="user-uuid mono">{truncateUuid(user.id)}</p>
+						<div class="user-card-footer">
+							<span class="user-date">
+								{T.home.users.memberSince} {formatDate(user.created_at, data.lang)}
+							</span>
+							<span class="view-link">
+							{T.home.users.viewProfile}
+							<span class="mi mi-sm">chevron_right</span>
+						</span>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{/if}
+	</div>
+</section>
+
+<style>
+	/* ── Hero ───────────────────────────────────────────────── */
+	.hero {
+		padding-block: var(--space-24) var(--space-16);
+		text-align: center;
+	}
+
+	.hero-inner {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-6);
+	}
+
+	.hero-title {
+		font-size: clamp(3rem, 8vw, 5.5rem);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		line-height: 1;
+		background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.hero-subtitle {
+		font-size: clamp(1rem, 2.5vw, 1.25rem);
+		color: var(--text-muted);
+		max-width: 480px;
+	}
+
+	.hero-cta {
+		margin-top: var(--space-2);
+	}
+
+	.uuid-demo {
+		margin-top: var(--space-8);
+		padding: var(--space-3) var(--space-6);
+		border: 1px dashed var(--border);
+		border-radius: var(--radius);
+		background: var(--surface);
+	}
+
+	.uuid-demo-text {
+		font-size: 0.875rem;
+		color: var(--text-subtle);
+		letter-spacing: 0.05em;
+	}
+
+	/* ── Cosmic banner ──────────────────────────────────────── */
+	.cosmic-banner {
+		background: linear-gradient(135deg, rgba(240,171,252,0.08), rgba(129,140,248,0.08));
+		border-block: 1px solid rgba(240,171,252,0.2);
+		padding-block: var(--space-3);
+		text-align: center;
+	}
+
+	.cosmic-banner-inner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+	}
+
+	.cosmic-banner p {
+		font-size: 0.875rem;
+		color: var(--cosmic);
+	}
+
+	/* ── Users section ──────────────────────────────────────── */
+	.users-section {
+		padding-bottom: var(--space-16);
+	}
+
+	.section-title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		margin-bottom: var(--space-6);
+	}
+
+	.empty-state {
+		text-align: center;
+		padding-block: var(--space-16);
+		color: var(--text-muted);
+	}
+
+	/* ── User grid ──────────────────────────────────────────── */
+	.user-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: var(--space-4);
+	}
+
+	.user-card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		padding: var(--space-4);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		transition: all 0.2s ease;
+		cursor: pointer;
+		text-decoration: none;
+	}
+
+	.user-card:hover {
+		border-color: var(--accent);
+		background: var(--surface-2);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 32px rgba(129, 140, 248, 0.1);
+	}
+
+	.cosmic-card {
+		border-color: rgba(240, 171, 252, 0.3) !important;
+	}
+
+	.cosmic-card:hover {
+		border-color: var(--cosmic) !important;
+		box-shadow: 0 8px 32px rgba(240, 171, 252, 0.1) !important;
+	}
+
+	.user-card-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+	}
+
+	.user-avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: var(--radius-full);
+		object-fit: cover;
+		flex-shrink: 0;
+	}
+
+	.user-info {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		min-width: 0;
+	}
+
+	.username {
+		font-weight: 500;
+		font-size: 0.9375rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.collision-badge {
+		flex-shrink: 0;
+		color: var(--cosmic);
+	}
+
+	.user-uuid {
+		font-size: 0.8125rem;
+		color: var(--accent);
+		letter-spacing: 0.02em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.user-card-footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-top: auto;
+	}
+
+	.user-date {
+		font-size: 0.75rem;
+		color: var(--text-subtle);
+	}
+
+	.view-link {
+		font-size: 0.75rem;
+		color: var(--accent);
+		opacity: 0;
+		transition: opacity 0.15s ease;
+	}
+
+	.user-card:hover .view-link {
+		opacity: 1;
+	}
+</style>

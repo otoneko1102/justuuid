@@ -1,0 +1,8 @@
+# Copy this file to .dev.vars for local development
+# .dev.vars is gitignored and contains secrets for wrangler dev
+
+GITHUB_CLIENT_ID=your_github_oauth_app_client_id
+GITHUB_CLIENT_SECRET=your_github_oauth_app_client_secret
+
+# Generate a random secret: openssl rand -hex 32
+JWT_SECRET=your_random_jwt_signing_secret_at_least_32_chars
