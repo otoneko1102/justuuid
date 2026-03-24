@@ -1,31 +1,31 @@
 {
-	// https://developers.cloudflare.com/workers/wrangler/configuration/
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "justuuid",
-	"compatibility_date": "2025-01-01",
-	"compatibility_flags": ["nodejs_compat"],
+  // https://developers.cloudflare.com/workers/wrangler/configuration/
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "justuuid",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
 
-	// SvelteKit Cloudflare adapter output directory
-	"pages_build_output_dir": ".svelte-kit/cloudflare",
+  // SvelteKit Cloudflare adapter output directory
+  "pages_build_output_dir": ".svelte-kit/cloudflare",
 
-	// D1 Database binding
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "justuuid-db",
-			// Replace with your actual D1 database ID after running:
-			// wrangler d1 create justuuid-db
-			"database_id": "b0ca6049-a827-49ea-8eec-be1b26eac33b",
-			"migrations_dir": "migrations"
-		}
-	],
+  // D1 Database binding
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "justuuid-db",
+      // Replace with your actual D1 database ID after running:
+      // wrangler d1 create justuuid-db
+      "database_id": "b0ca6049-a827-49ea-8eec-be1b26eac33b",
+      "migrations_dir": "migrations",
+    },
+  ],
 
-	// Non-secret environment variables
-	// Secrets (GITHUB_CLIENT_SECRET, JWT_SECRET) must be set via:
-	// wrangler secret put GITHUB_CLIENT_SECRET
-	// wrangler secret put JWT_SECRET
-	// Or via Cloudflare Pages dashboard → Settings → Environment Variables
-	"vars": {
-		"GITHUB_CLIENT_ID": "Ov23licSD3ChCYP8gA1e"
-	}
+  // Non-secret environment variables
+  // Secrets (GITHUB_CLIENT_SECRET, JWT_SECRET) must be set via:
+  // wrangler secret put GITHUB_CLIENT_SECRET
+  // wrangler secret put JWT_SECRET
+  // Or via Cloudflare Pages dashboard → Settings → Environment Variables
+  "vars": {
+    // "GITHUB_CLIENT_ID": "Ov23licSD3ChCYP8gA1e"
+  },
 }
