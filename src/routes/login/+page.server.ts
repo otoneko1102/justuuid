@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals, platform, cookies, url }) =
 
 	const clientId = platform?.env?.GITHUB_CLIENT_ID;
 	if (!clientId) {
-		throw new Error('GITHUB_CLIENT_ID is not configured');
+		redirect(302, '/?error=config');
 	}
 
 	// CSRF state parameter
