@@ -9,7 +9,12 @@ export const load: PageServerLoad = async ({ params, platform, locals, url }) =>
 		throw error(500, 'Database not available');
 	}
 
-	const user = await getUserById(db, params.uuid);
+	let user;
+	try {
+		user = await getUserById(db, params.uuid);
+	} catch {
+		throw error(503, 'Database temporarily unavailable');
+	}
 
 	if (!user) {
 		throw error(404, 'User not found');
