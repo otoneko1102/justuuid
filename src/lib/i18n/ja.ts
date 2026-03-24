@@ -68,7 +68,7 @@ export const ja = {
 	},
 	privacy: {
 		title: 'プライバシーポリシー',
-		lastUpdated: '最終更新：2025年3月',
+		lastUpdated: '最終更新：2026年3月',
 		sections: {
 			collect: {
 				title: '収集する情報',
@@ -90,19 +90,23 @@ export const ja = {
 				title: 'サードパーティサービス',
 				body: '認証にGitHub OAuthを使用しています。サインイン時にGitHubのプライバシーポリシーがそのプロセスで共有されるデータに適用されます。',
 			},
+			deletion: {
+				title: 'データの削除',
+				body: 'データの削除をご希望の場合は、運営者にお問い合わせください。なお、削除後もUUIDが他のユーザーに再割り当てられることはありません。',
+			},
 			contact: {
 				title: 'お問い合わせ',
-				body: 'プライバシーに関するご懸念は、GitHubリポジトリにissueを作成してください。',
+				body: 'プライバシーに関するご懸念は、運営者のGitHubプロフィール（@otoneko1102）からお問い合わせください。',
 			},
 		},
 	},
 	terms: {
 		title: '利用規約',
-		lastUpdated: '最終更新：2025年3月',
+		lastUpdated: '最終更新：2026年3月',
 		sections: {
 			service: {
 				title: 'サービスについて',
-				body: 'JustUUIDは各GitHubユーザーに、公開URLでアクセス可能な永続的で一意のUUID v4識別子を提供します。サービスは現状のまま提供されます。',
+				body: 'JustUUIDは各GitHubユーザーに、公開URLでアクセス可能な永続的で一意のUUID v4識別子を提供します。本サービスは非公開で運営されており、ソースコードは公開されていません。',
 			},
 			use: {
 				title: '適切な利用',
@@ -114,7 +118,11 @@ export const ja = {
 			},
 			uuid: {
 				title: 'UUIDの永続性',
-				body: 'あなたのUUIDはGitHubアカウントに永続的にリンクされ、他のユーザーに再割り当てされることはありません。ただし、サービスが無期限に利用可能であることは保証しません。',
+				body: 'あなたのUUIDはGitHubアカウントに永続的にリンクされ、他のユーザーに再割り当てられることはありません。ただし、サービスが無期限に利用可能であることは保証しません。',
+			},
+			intellectual: {
+				title: '知的財産権',
+				body: '本サービスのソースコードは非公開であり、無断でのアクセス、複製、リバースエンジニアリングは禁止されています。',
 			},
 			disclaimer: {
 				title: '免責事項',

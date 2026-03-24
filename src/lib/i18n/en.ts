@@ -68,7 +68,7 @@ export const en = {
 	},
 	privacy: {
 		title: 'Privacy Policy',
-		lastUpdated: 'Last updated: March 2025',
+		lastUpdated: 'Last updated: March 2026',
 		sections: {
 			collect: {
 				title: 'Information We Collect',
@@ -90,19 +90,23 @@ export const en = {
 				title: 'Third-Party Services',
 				body: 'We use GitHub OAuth for authentication. When you sign in, GitHub\'s privacy policy governs data shared during that process.',
 			},
+			deletion: {
+				title: 'Data Deletion',
+				body: 'If you wish to have your data removed, please contact the operator. Note that UUID reassignment to another user will not occur even after deletion.',
+			},
 			contact: {
 				title: 'Contact',
-				body: 'For privacy concerns, please open an issue on our GitHub repository.',
+				body: 'For privacy concerns, please contact the operator via their GitHub profile (@otoneko1102).',
 			},
 		},
 	},
 	terms: {
 		title: 'Terms of Service',
-		lastUpdated: 'Last updated: March 2025',
+		lastUpdated: 'Last updated: March 2026',
 		sections: {
 			service: {
 				title: 'The Service',
-				body: 'JustUUID provides each GitHub user with a permanent, unique UUID v4 identifier accessible at a public URL. The service is provided as-is.',
+				body: 'JustUUID provides each GitHub user with a permanent, unique UUID v4 identifier accessible at a public URL. The service is operated privately and the source code is not publicly available.',
 			},
 			use: {
 				title: 'Acceptable Use',
@@ -110,11 +114,15 @@ export const en = {
 			},
 			availability: {
 				title: 'Availability',
-				body: 'We strive to keep the service available but do not guarantee uptime. The service is provided free of charge and may change or be discontinued at any time.',
+				body: 'We strive to keep the service available but do not guarantee uptime. The service is provided free of charge and may change or be discontinued at any time without prior notice.',
 			},
 			uuid: {
 				title: 'UUID Permanence',
 				body: 'Your UUID is permanently linked to your GitHub account and will not be reassigned to another user. However, we do not guarantee that the service will remain available indefinitely.',
+			},
+			intellectual: {
+				title: 'Intellectual Property',
+				body: 'The source code of this service is proprietary and not publicly available. Unauthorized access to, reproduction of, or reverse engineering of the source code is prohibited.',
 			},
 			disclaimer: {
 				title: 'Disclaimer',
