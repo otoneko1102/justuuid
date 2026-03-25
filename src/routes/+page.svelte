@@ -5,14 +5,17 @@
 	import type { PageData } from './$types';
 
 	type UserSort = 'random' | 'newest' | 'oldest';
-
-	let { data }: { data: PageData } = $props();
-	const homeData = data as PageData & {
+	type HomePageData = PageData & {
 		lookupError?: string | null;
 		lookupUsername?: string;
 		showAll?: boolean;
 		sort?: UserSort;
 	};
+
+	let { data }: { data: PageData } = $props();
+	const homeData = $derived(data as HomePageData);
+	const currentSort = $derived(homeData.sort ?? 'random');
+	const currentShowAll = $derived(homeData.showAll ?? false);
 
 	const T = $derived(t(data.lang));
 	const lookupErrorMessage = $derived.by(() => {
@@ -52,8 +55,8 @@
 
 	function buildHomeUrl({
 		query = data.query,
-		sort = homeData.sort ?? 'random',
-		showAll = homeData.showAll ?? false
+		sort = currentSort,
+		showAll = currentShowAll
 	}: {
 		query?: string;
 		sort?: UserSort;
@@ -227,9 +230,9 @@
 		<div class="sort-row" aria-label="Sort users">
 			{#each sortOptions as option}
 				<a
-					href={buildHomeUrl({ sort: option.value, showAll: homeData.showAll ?? false })}
+					href={buildHomeUrl({ sort: option.value, showAll: currentShowAll })}
 					class="sort-chip"
-					class:active={option.value === (homeData.sort ?? 'random')}
+					class:active={option.value === currentSort}
 				>
 					{option.label}
 				</a>
@@ -282,7 +285,7 @@
 				{/each}
 			</div>
 
-			{#if !data.query && data.totalCount > data.users.length && !homeData.showAll}
+			{#if !data.query && data.totalCount > data.users.length && !currentShowAll}
 				<div class="users-more">
 					<a href={buildHomeUrl({ showAll: true })} class="btn btn-ghost">
 						{showMoreLabel}
@@ -291,7 +294,7 @@
 				</div>
 			{/if}
 
-			{#if !data.query && homeData.showAll}
+			{#if !data.query && currentShowAll}
 				<div class="users-more">
 					<a href={buildHomeUrl({ showAll: false })} class="btn btn-ghost btn-sm">
 						{showLessLabel}
@@ -299,7 +302,7 @@
 				</div>
 			{/if}
 
-			{#if !data.query && !homeData.showAll}
+			{#if !data.query && !currentShowAll}
 				<p class="random-hint">{T.home.users.randomHint}</p>
 			{/if}
 		{/if}
