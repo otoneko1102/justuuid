@@ -297,10 +297,10 @@
 	}
 
 	.uuid {
-		font-size: clamp(0.875rem, 3vw, 1.0625rem);
+		font-size: clamp(0.62rem, 1.8vw, 0.95rem);
 		color: var(--accent);
-		letter-spacing: 0.04em;
-		word-break: break-all;
+		letter-spacing: 0.01em;
+		white-space: nowrap;
 		padding: var(--space-3) var(--space-4);
 		background: var(--bg);
 		border: 1px solid var(--border);
@@ -380,7 +380,7 @@
 		}
 
 		.uuid {
-			font-size: 0.8125rem;
+			font-size: 0.62rem;
 			padding: var(--space-2) var(--space-3);
 		}
 

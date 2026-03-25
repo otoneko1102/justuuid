@@ -11,10 +11,12 @@ import {
 export const load: PageServerLoad = async ({ platform, url }) => {
 	const db = platform?.env?.DB;
 	const query = url.searchParams.get('q')?.trim() ?? '';
+	const showAll = url.searchParams.get('all') === '1';
 	const lookupUsername = url.searchParams.get('user')?.trim() ?? '';
 	const lookupError = url.searchParams.get('error') === 'user-not-found';
 	const baseData = {
 		query,
+		showAll,
 		lookupError: lookupError ? 'user-not-found' : null,
 		lookupUsername
 	};
@@ -52,7 +54,9 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 
 		const users = query
 			? await searchUsers(db, query, 30)
-			: await listUsers(db, 12);
+			: showAll
+				? await searchUsers(db, '', totalCount || 1)
+				: await listUsers(db, 6);
 
 		return {
 			users,

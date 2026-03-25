@@ -5,16 +5,19 @@
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+	const homeData = data as PageData & {
+		lookupError?: string | null;
+		lookupUsername?: string;
+		showAll?: boolean;
+	};
 
 	const T = $derived(t(data.lang));
 	const lookupErrorMessage = $derived.by(() => {
-		// @ts-ignore
-		if (data.lookupError !== 'user-not-found') {
+		if (homeData.lookupError !== 'user-not-found') {
 			return null;
 		}
 
-		// @ts-ignore
-		const username = data.lookupUsername ? `@${data.lookupUsername}` : null;
+		const username = homeData.lookupUsername ? `@${homeData.lookupUsername}` : null;
 
 		if (data.lang === 'ja') {
 			return username
@@ -26,6 +29,8 @@
 			? `${username} is not registered on JustUUID.`
 			: 'The requested GitHub user was not found on JustUUID.';
 	});
+	const showMoreLabel = $derived(data.lang === 'ja' ? '\u3082\u3063\u3068\u898b\u308b' : 'Show all users');
+	const showLessLabel = $derived(data.lang === 'ja' ? '\u9589\u3058\u308b' : 'Show fewer');
 
 	let searchInput = $state(data.query);
 
@@ -46,10 +51,6 @@
 			month: 'short',
 			day: 'numeric',
 		});
-	}
-
-	function truncateUuid(uuid: string) {
-		return uuid.slice(0, 18) + '\u2026';
 	}
 
 	// Animated UUID
@@ -211,7 +212,7 @@
 								{/if}
 							</div>
 						</div>
-						<p class="user-uuid mono">{truncateUuid(user.id)}</p>
+						<p class="user-uuid mono">{user.id}</p>
 						<div class="user-card-footer">
 							<span class="user-date">
 								{T.home.users.memberSince} {formatDate(user.created_at, data.lang)}
@@ -225,7 +226,24 @@
 				{/each}
 			</div>
 
-			{#if !data.query}
+			{#if !data.query && data.totalCount > data.users.length && !homeData.showAll}
+				<div class="users-more">
+					<a href="/?all=1" class="btn btn-ghost">
+						{showMoreLabel}
+						<span class="mi mi-sm">expand_more</span>
+					</a>
+				</div>
+			{/if}
+
+			{#if !data.query && homeData.showAll}
+				<div class="users-more">
+					<a href="/" class="btn btn-ghost btn-sm">
+						{showLessLabel}
+					</a>
+				</div>
+			{/if}
+
+			{#if !data.query && !homeData.showAll}
 				<p class="random-hint">{T.home.users.randomHint}</p>
 			{/if}
 		{/if}
@@ -510,12 +528,11 @@
 	}
 
 	.user-uuid {
-		font-size: 0.8125rem;
+		font-size: clamp(0.56rem, 1.2vw, 0.75rem);
 		color: var(--accent);
-		letter-spacing: 0.02em;
+		letter-spacing: 0.01em;
 		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+		line-height: 1.4;
 	}
 
 	.user-card-footer {
@@ -539,5 +556,11 @@
 
 	.user-card:hover .view-link {
 		opacity: 1;
+	}
+
+	.users-more {
+		display: flex;
+		justify-content: center;
+		margin-top: var(--space-5);
 	}
 </style>
