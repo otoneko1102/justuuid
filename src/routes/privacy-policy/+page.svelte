@@ -1,27 +1,105 @@
 <script lang="ts">
-	import { t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-	const T = $derived(t(data.lang));
-	const P = $derived(T.privacy);
 
 	type Section = { title: string; body: string };
-	const sections = $derived(Object.values(P.sections) as Section[]);
+
+	const content = $derived.by(() => {
+		if (data.lang === 'ja') {
+			return {
+				title: 'プライバシーポリシー',
+				lastUpdated: '最終更新: 2026年3月',
+				sections: [
+					{
+						title: '収集する情報',
+						body: 'JustUUID は、GitHub でログインした際に GitHub ユーザー ID、ユーザー名、プロフィール画像 URL を取得します。あわせて、そのアカウントに恒久的に紐づく UUID v4 を保存します。メールアドレスなど、それ以外の個人情報は取得しません。'
+					},
+					{
+						title: '情報の利用目的',
+						body: '取得した GitHub ユーザー名、プロフィール画像、UUID は、公開プロフィールページの表示とアカウント識別のために利用します。広告目的で販売、共有、追跡利用は行いません。'
+					},
+					{
+						title: '公開情報について',
+						body: 'GitHub ユーザー名、プロフィール画像、UUID、参加日時は公開プロフィールページで表示されます。JustUUID を private な識別情報の保管先として利用しないでください。'
+					},
+					{
+						title: 'データ保存',
+						body: 'データは Cloudflare のインフラ上に保存されます。UUID の恒久性を保つため、関連データは継続して保持される場合があります。'
+					},
+					{
+						title: 'Cookie',
+						body: 'ログイン状態の維持と表示言語の保存のために Cookie を使用します。広告や行動追跡のための Cookie は使用しません。'
+					},
+					{
+						title: '第三者サービス',
+						body: '認証には GitHub OAuth を利用します。認証時に GitHub へ送信される情報には GitHub のポリシーが適用されます。'
+					},
+					{
+						title: '公開リポジトリについて',
+						body: 'このサービスのソースコードは公開リポジトリで公開されています。ただし、デプロイ用の秘密情報や運用上のシークレットはリポジトリには含まれません。'
+					},
+					{
+						title: 'お問い合わせ',
+						body: 'プライバシーに関する問い合わせは、運営者の GitHub プロフィール（@otoneko1102）を通じて行ってください。'
+					}
+				] satisfies Section[]
+			};
+		}
+
+		return {
+			title: 'Privacy Policy',
+			lastUpdated: 'Last updated: March 2026',
+			sections: [
+				{
+					title: 'Information We Collect',
+					body: 'When you sign in with GitHub, JustUUID collects your GitHub user ID, username, and profile avatar URL. We also store a UUID v4 that is permanently associated with that account. We do not collect email addresses or other personal information beyond what is needed to operate the service.'
+				},
+				{
+					title: 'How We Use This Information',
+					body: 'Your GitHub username, avatar, and UUID are used to identify your account and display your public profile page. We do not sell your data, use it for advertising, or share it for behavioral tracking.'
+				},
+				{
+					title: 'Public Profile Data',
+					body: 'Your GitHub username, avatar, UUID, and joined date are displayed on a public profile page. Do not use JustUUID for private or sensitive identity information.'
+				},
+				{
+					title: 'Data Storage',
+					body: 'Data is stored on Cloudflare infrastructure. To preserve UUID permanence, associated account data may be retained for as long as the service operates.'
+				},
+				{
+					title: 'Cookies',
+					body: 'We use cookies to keep you signed in and remember your language preference. We do not use advertising or cross-site tracking cookies.'
+				},
+				{
+					title: 'Third-Party Services',
+					body: 'Authentication is handled through GitHub OAuth. Information exchanged during sign-in is also subject to GitHub policies.'
+				},
+				{
+					title: 'Public Repository',
+					body: 'The source code for this service is available in a public repository. Deployment secrets and operational credentials are not stored in that repository.'
+				},
+				{
+					title: 'Contact',
+					body: 'For privacy-related questions, contact the operator through their GitHub profile (@otoneko1102).'
+				}
+			] satisfies Section[]
+		};
+	});
 </script>
 
 <svelte:head>
-	<title>{P.title} — JustUUID</title>
+	<title>{content.title} - JustUUID</title>
 </svelte:head>
 
 <div class="legal-page container">
 	<header class="legal-header">
-		<h1>{P.title}</h1>
-		<p class="updated">{P.lastUpdated}</p>
+		<h1>{content.title}</h1>
+		<p class="updated">{content.lastUpdated}</p>
 	</header>
 
 	<article class="legal-content">
-		{#each sections as section}
+		{#each content.sections as section}
 			<section>
 				<h2>{section.title}</h2>
 				<p>{section.body}</p>

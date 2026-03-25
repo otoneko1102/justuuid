@@ -1,27 +1,97 @@
 <script lang="ts">
-	import { t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-	const T = $derived(t(data.lang));
-	const TOS = $derived(T.terms);
 
 	type Section = { title: string; body: string };
-	const sections = $derived(Object.values(TOS.sections) as Section[]);
+
+	const content = $derived.by(() => {
+		if (data.lang === 'ja') {
+			return {
+				title: '利用規約',
+				lastUpdated: '最終更新: 2026年3月',
+				sections: [
+					{
+						title: 'サービスについて',
+						body: 'JustUUID は、GitHub アカウントに対して恒久的な UUID v4 を割り当て、その情報を公開 URL で表示するサービスです。'
+					},
+					{
+						title: '利用条件',
+						body: '本サービスは適法な目的でのみ利用できます。過剰な負荷、妨害、不正アクセス、なりすまし、または他ユーザーへの迷惑行為を目的とした利用は禁止します。'
+					},
+					{
+						title: '公開プロフィール',
+						body: 'プロフィールページは公開されます。公開される情報の性質を理解した上で利用してください。'
+					},
+					{
+						title: '可用性',
+						body: '本サービスは無償で提供されており、継続的な稼働や将来にわたる提供を保証しません。予告なく変更、中断、終了する場合があります。'
+					},
+					{
+						title: 'UUID の恒久性',
+						body: 'UUID は GitHub アカウントに恒久的に紐づき、別のユーザーへ再割り当てされません。ただし、サービスそのものの永続提供は保証されません。'
+					},
+					{
+						title: '公開ソースコードと権利',
+						body: 'このサービスのソースコードは公開リポジトリで公開されています。コードの利用、複製、改変、再配布は当該リポジトリに適用されるライセンス条件に従ってください。ただし、公式サービスを装った運用や誤認を招く表示は禁止します。'
+					},
+					{
+						title: '免責',
+						body: '本サービスは現状有姿で提供され、明示または黙示を問わず保証はありません。本サービスの利用により生じた損害について、運営者は責任を負いません。'
+					}
+				] satisfies Section[]
+			};
+		}
+
+		return {
+			title: 'Terms of Service',
+			lastUpdated: 'Last updated: March 2026',
+			sections: [
+				{
+					title: 'The Service',
+					body: 'JustUUID assigns a permanent UUID v4 to a GitHub account and exposes that identity through a public URL.'
+				},
+				{
+					title: 'Acceptable Use',
+					body: 'You may use this service only for lawful purposes. You may not abuse, overload, disrupt, impersonate others, or attempt unauthorized access to the service or its infrastructure.'
+				},
+				{
+					title: 'Public Profiles',
+					body: 'Profile pages are public. You are responsible for understanding that the profile information exposed by the service is publicly accessible.'
+				},
+				{
+					title: 'Availability',
+					body: 'The service is provided free of charge and may change, be interrupted, or be discontinued at any time. We do not guarantee uptime or long-term availability.'
+				},
+				{
+					title: 'UUID Permanence',
+					body: 'A UUID is permanently linked to the GitHub account that received it and will not be reassigned to another user. This does not guarantee that the service itself will exist forever.'
+				},
+				{
+					title: 'Public Source Code and Rights',
+					body: 'The source code for this service is available in a public repository. Use, copying, modification, and redistribution of that code are governed by the repository license. However, you may not misrepresent an unofficial deployment as the official JustUUID service.'
+				},
+				{
+					title: 'Disclaimer',
+					body: 'The service is provided "as is" without warranties of any kind. The operator is not liable for damages resulting from use of the service.'
+				}
+			] satisfies Section[]
+		};
+	});
 </script>
 
 <svelte:head>
-	<title>{TOS.title} — JustUUID</title>
+	<title>{content.title} - JustUUID</title>
 </svelte:head>
 
 <div class="legal-page container">
 	<header class="legal-header">
-		<h1>{TOS.title}</h1>
-		<p class="updated">{TOS.lastUpdated}</p>
+		<h1>{content.title}</h1>
+		<p class="updated">{content.lastUpdated}</p>
 	</header>
 
 	<article class="legal-content">
-		{#each Object.values(TOS.sections) as section}
+		{#each content.sections as section}
 			<section>
 				<h2>{section.title}</h2>
 				<p>{section.body}</p>
