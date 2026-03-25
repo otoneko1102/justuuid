@@ -89,7 +89,7 @@ export const GET: RequestHandler = async ({ platform, params }) => {
 			});
 		}
 
-		return new Response(renderBadge('uuid', user.id, '#4c1'), {
+		return new Response(renderBadge(`${user.username}'s uuid`, user.id, '#4c1'), {
 			headers: {
 				'content-type': 'image/svg+xml; charset=utf-8',
 				'cache-control': cacheHeader
