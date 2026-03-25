@@ -30,6 +30,21 @@ export async function getUserByGithubId(db: D1Database, githubId: number): Promi
 	return row ? mapRow(row) : null;
 }
 
+/** Fetch user by GitHub username (case-insensitive exact match). Returns null if not found. */
+export async function getUserByUsername(db: D1Database, username: string): Promise<User | null> {
+	const normalizedUsername = username.trim();
+
+	if (!normalizedUsername) {
+		return null;
+	}
+
+	const row = await db
+		.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE LIMIT 1')
+		.bind(normalizedUsername)
+		.first<Record<string, unknown>>();
+	return row ? mapRow(row) : null;
+}
+
 /** Create a new user, generating a UUID v4 (with collision detection). */
 export async function createUser(
 	db: D1Database,

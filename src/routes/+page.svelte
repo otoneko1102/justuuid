@@ -7,6 +7,25 @@
 	let { data }: { data: PageData } = $props();
 
 	const T = $derived(t(data.lang));
+	const lookupErrorMessage = $derived.by(() => {
+		// @ts-ignore
+		if (data.lookupError !== 'user-not-found') {
+			return null;
+		}
+
+		// @ts-ignore
+		const username = data.lookupUsername ? `@${data.lookupUsername}` : null;
+
+		if (data.lang === 'ja') {
+			return username
+				? `${username} \u306f JustUUID \u306b\u767b\u9332\u3055\u308c\u3066\u3044\u307e\u305b\u3093\u3002`
+				: '\u6307\u5b9a\u3055\u308c\u305f GitHub \u30e6\u30fc\u30b6\u30fc\u306f JustUUID \u306b\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002';
+		}
+
+		return username
+			? `${username} is not registered on JustUUID.`
+			: 'The requested GitHub user was not found on JustUUID.';
+	});
 
 	let searchInput = $state(data.query);
 
@@ -119,6 +138,15 @@
 		<div class="container cosmic-banner-inner">
 			<span class="mi mi-sm" style="color: var(--cosmic)">casino</span>
 			<p>{T.home.cosmic.banner}</p>
+		</div>
+	</div>
+{/if}
+
+{#if lookupErrorMessage}
+	<div class="lookup-error-banner" role="alert" aria-live="polite">
+		<div class="container lookup-error-banner-inner">
+			<span class="mi mi-sm">error</span>
+			<p>{lookupErrorMessage}</p>
 		</div>
 	</div>
 {/if}
@@ -286,6 +314,26 @@
 	.cosmic-banner p {
 		font-size: 0.875rem;
 		color: var(--cosmic);
+	}
+
+	.lookup-error-banner {
+		background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(127, 29, 29, 0.2));
+		border-block: 1px solid rgba(248, 113, 113, 0.4);
+	}
+
+	.lookup-error-banner-inner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		padding-block: var(--space-3);
+		color: #fecaca;
+		text-align: center;
+	}
+
+	.lookup-error-banner p {
+		font-size: 0.875rem;
+		color: inherit;
 	}
 
 	/* ── Users section ──────────────────────────────────────── */
