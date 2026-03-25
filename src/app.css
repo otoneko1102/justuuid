@@ -1,14 +1,10 @@
-/* ─── Reset ─────────────────────────────────────────────────── */
 *, *::before, *::after {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
 }
-
-/* ─── Design Tokens ─────────────────────────────────────────── */
 :root {
-	/* Colors */
-	--bg:           #09090b;
+--bg:           #09090b;
 	--surface:      #18181b;
 	--surface-2:    #27272a;
 	--border:       #3f3f46;
@@ -16,23 +12,15 @@
 	--text:         #fafafa;
 	--text-muted:   #a1a1aa;
 	--text-subtle:  #52525b;
-
-	/* Accent — indigo */
-	--accent:       #818cf8;
+--accent:       #818cf8;
 	--accent-dim:   #4f46e5;
 	--accent-glow:  rgba(129, 140, 248, 0.15);
-
-	/* Status */
-	--success:      #4ade80;
+--success:      #4ade80;
 	--warning:      #fbbf24;
-	--cosmic:       #f0abfc; /* collision easter egg */
-
-	/* Typography */
-	--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--cosmic:       #f0abfc; /* Collision color */
+--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 	--font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
-
-	/* Spacing scale */
-	--space-1: 0.25rem;
+--space-1: 0.25rem;
 	--space-2: 0.5rem;
 	--space-3: 0.75rem;
 	--space-4: 1rem;
@@ -41,16 +29,12 @@
 	--space-12: 3rem;
 	--space-16: 4rem;
 	--space-24: 6rem;
-
-	/* Shape */
-	--radius-sm: 6px;
+--radius-sm: 6px;
 	--radius:    10px;
 	--radius-lg: 16px;
 	--radius-xl: 24px;
 	--radius-full: 9999px;
 }
-
-/* ─── Base ───────────────────────────────────────────────────── */
 html {
 	font-family: var(--font-sans);
 	font-size: 16px;
@@ -71,8 +55,6 @@ a {
 	color: inherit;
 	text-decoration: none;
 }
-
-/* ─── Utility Classes ───────────────────────────────────────── */
 .container {
 	width: 100%;
 	max-width: 1100px;
@@ -92,8 +74,6 @@ a {
 .mono {
 	font-family: var(--font-mono);
 }
-
-/* ─── Buttons ───────────────────────────────────────────────── */
 .btn {
 	display: inline-flex;
 	align-items: center;
@@ -149,8 +129,6 @@ a {
 	font-size: 1rem;
 	border-radius: var(--radius);
 }
-
-/* ─── Cards ─────────────────────────────────────────────────── */
 .card {
 	background: var(--surface);
 	border: 1px solid var(--border);
@@ -162,15 +140,11 @@ a {
 .card:hover {
 	border-color: var(--border-hover);
 }
-
-/* ─── Divider ───────────────────────────────────────────────── */
 .divider {
 	height: 1px;
 	background: var(--border);
 	margin-block: var(--space-6);
 }
-
-/* ─── Material Symbols ──────────────────────────────────────── */
 .mi {
 	font-family: 'Material Symbols Outlined';
 	font-size: 18px;
@@ -188,8 +162,6 @@ a {
 .mi-md { font-size: 20px; }
 .mi-lg { font-size: 24px; }
 .mi-xl { font-size: 32px; }
-
-/* ─── Focus ring ────────────────────────────────────────────── */
 :focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;

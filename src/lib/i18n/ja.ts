@@ -1,133 +1,132 @@
 export const ja = {
 	meta: {
 		siteName: 'JustUUID',
-		description: 'あなただけの永続的なID。',
-		ogDescription: 'GitHubでログインして、あなただけの永続的なUUID v4を取得しましょう。',
+		description: 'あなただけの恒久的なIDを、ひとつのUUIDで。',
+		ogDescription: 'GitHubでログインして、あなただけの恒久的なUUID v4を取得しましょう。'
 	},
 	nav: {
 		home: 'ホーム',
 		myPage: 'マイページ',
 		login: 'GitHubでログイン',
-		logout: 'サインアウト',
+		logout: 'サインアウト'
 	},
 	lang: {
 		en: 'EN',
-		ja: 'JA',
+		ja: 'JA'
 	},
 	home: {
 		hero: {
 			title: 'JustUUID',
-			subtitle: 'あなただけの永続的なID。',
-			cta: 'UUIDを取得する',
+			subtitle: 'あなただけの恒久的なIDを、ひとつのUUIDで。',
+			cta: 'UUIDを取得'
 		},
 		users: {
 			title: 'ユーザー',
-			empty: 'まだユーザーがいません。最初になりましょう！',
+			empty: 'まだユーザーはいません。最初の1人になりましょう。',
 			viewProfile: '表示',
 			memberSince: '参加',
-			registered: '人登録済み',
+			registered: '登録済み',
 			searchPlaceholder: 'ユーザー名で検索...',
 			searchResults: '「{query}」の検索結果: {count}件',
 			noResults: '「{query}」に一致するユーザーは見つかりませんでした。',
-			randomHint: 'ランダムに表示しています。検索で特定のユーザーを見つけられます。',
+			randomHint: 'ランダムに表示しています。特定のユーザーを探すときは検索を使ってください。'
 		},
 		cosmic: {
-			banner: 'このシステムでUUID v4の衝突が記録されました — 5.3×10³⁶分の1の出来事です。',
-		},
+			banner: 'このシステムで UUID v4 の衝突が記録されました。5.3×10^36分の1級の出来事です。'
+		}
 	},
 	user: {
 		copyUuid: 'UUIDをコピー',
 		copyUrl: 'URLをコピー',
-		copied: 'コピーしました！',
-		memberSince: '参加日',
+		copied: 'コピーしました',
+		memberSince: '登録日',
 		notFound: 'ユーザーが見つかりません',
 		notFoundDesc: 'このUUIDに対応するユーザーは存在しません。',
 		yourPage: 'これはあなたのページです。',
-		sharePrompt: 'このURLを誰かと共有しましょう：',
-		ogDescription: '@{username}の永続的なUUIDは {uuid} — JustUUIDにて発行。',
+		sharePrompt: 'このURLを共有できます:',
+		ogDescription: '@{username} の恒久的なUUIDは {uuid} です。JustUUIDで発行されました。',
 		cosmic: {
 			badge: '宇宙的衝突',
-			title: 'UUID衝突を検出',
-			description:
-				'このUUIDは衝突が発生した後に生成されました — 5.3×10³⁶分の1という確率の出来事です。確率の法則が覆されました。',
-		},
+			title: 'UUIDの衝突が検出されました',
+			description: 'このUUIDは衝突のあとに生成されました。極めて低い確率の出来事です。'
+		}
 	},
 	auth: {
 		error: '認証に失敗しました。もう一度お試しください。',
-		invalidState: '認証状態が無効です。もう一度お試しください。',
+		invalidState: '認証状態が不正です。もう一度お試しください。'
 	},
 	errors: {
-		notFound: '404 — 見つかりません',
+		notFound: '404 - 見つかりません',
 		notFoundDesc: 'お探しのページは存在しません。',
-		goHome: 'ホームへ戻る',
+		goHome: 'ホームへ戻る'
 	},
 	footer: {
 		privacyPolicy: 'プライバシーポリシー',
 		termsOfService: '利用規約',
-		tagline: 'UUID v4 • あなたのものとして永遠に',
+		tagline: 'UUID v4 ・ あなただけの恒久的なID'
 	},
 	privacy: {
 		title: 'プライバシーポリシー',
-		lastUpdated: '最終更新：2026年3月',
+		lastUpdated: '最終更新: 2026年3月',
 		sections: {
 			collect: {
 				title: '収集する情報',
-				body: 'GitHubでサインインすると、GitHubユーザーID、ユーザーネーム、プロフィールアバターURLを収集します。また、あなたのアカウントに永続的に関連付けられたランダム生成UUID v4を保存します。メールアドレスや他の個人情報は収集しません。',
+				body: 'GitHubでサインインすると、GitHubユーザーID、ユーザー名、プロフィール画像URLを取得します。また、アカウントに恒久的に関連付けられるUUID v4を保存します。メールアドレスなど、運用に不要な個人情報は収集しません。'
 			},
 			use: {
 				title: '情報の利用方法',
-				body: 'GitHubのユーザーネームとアバターはあなたの公開プロフィールページに表示されます。UUIDはあなたの永続的な公開識別子として機能します。情報を販売、共有、または広告目的で使用することはありません。',
+				body: 'GitHubユーザー名、プロフィール画像、UUIDは公開プロフィールページの表示とアカウント識別に利用されます。広告目的での利用、販売、行動追跡のための共有は行いません。'
 			},
 			storage: {
 				title: 'データの保存',
-				body: 'データはCloudflareのインフラストラクチャに保存されます。あなたのUUIDと関連プロフィールは、永続的な識別子を維持するために無期限に保持されます。',
+				body: 'データはCloudflareのインフラ上に保存されます。UUIDの恒久性を保つため、関連データはサービス運営期間中保持される場合があります。'
 			},
 			cookies: {
 				title: 'Cookie',
-				body: 'ログイン状態を維持するためのセッションCookieと言語設定Cookieを使用します。トラッキングや広告用のCookieは使用しません。',
+				body: 'ログイン状態の維持と言語設定の保存のためにCookieを使用します。広告CookieやクロスサイトトラッキングCookieは使用しません。'
 			},
 			thirdParty: {
-				title: 'サードパーティサービス',
-				body: '認証にGitHub OAuthを使用しています。サインイン時にGitHubのプライバシーポリシーがそのプロセスで共有されるデータに適用されます。',
+				title: '第三者サービス',
+				body: '認証にはGitHub OAuthを使用します。サインイン時にGitHubへ送信される情報には、GitHubのポリシーも適用されます。'
 			},
 			deletion: {
-				title: 'データの削除',
-				body: 'データの削除をご希望の場合は、運営者にお問い合わせください。なお、削除後もUUIDが他のユーザーに再割り当てられることはありません。',
+				title: 'データ削除',
+				body: 'データ削除を希望する場合は運営者へ連絡してください。なお、一度使われたUUIDが別ユーザーへ再割り当てされることはありません。'
 			},
 			contact: {
 				title: 'お問い合わせ',
-				body: 'プライバシーに関するご懸念は、運営者のGitHubプロフィール（@otoneko1102）からお問い合わせください。',
-			},
-		},
+				body: 'プライバシーに関する問い合わせは、運営者のGitHubプロフィール（@otoneko1102）からお願いします。'
+			}
+		}
 	},
 	terms: {
 		title: '利用規約',
-		lastUpdated: '最終更新：2026年3月',
+		lastUpdated: '最終更新: 2026年3月',
 		sections: {
 			service: {
-				title: 'サービスについて',
-				body: 'JustUUIDは各GitHubユーザーに、公開URLでアクセス可能な永続的で一意のUUID v4識別子を提供します。本サービスは非公開で運営されており、ソースコードは公開されていません。',
+				title: '本サービスについて',
+				body: 'JustUUIDは、GitHubアカウントに恒久的なUUID v4を割り当て、公開URLでその識別子を表示するサービスです。'
 			},
 			use: {
-				title: '適切な利用',
-				body: 'このサービスは合法的な目的であれば自由にご利用いただけます。サービスの悪用、妨害、過負荷をかけることは禁止します。GitHubアカウントのセキュリティはご自身の責任です。',
+				title: '利用条件',
+				body: '本サービスは適法な目的にのみ利用できます。過剰な負荷、不正アクセス、なりすまし、妨害行為は禁止です。'
 			},
 			availability: {
-				title: '可用性',
-				body: 'サービスの可用性維持に努めますが、稼働時間を保証するものではありません。サービスは無料で提供されており、予告なく変更または終了する場合があります。',
+				title: '提供状況',
+				body: '本サービスは無償で提供されており、事前の通知なく変更、中断、終了されることがあります。稼働率や永続的な提供は保証しません。'
 			},
 			uuid: {
-				title: 'UUIDの永続性',
-				body: 'あなたのUUIDはGitHubアカウントに永続的にリンクされ、他のユーザーに再割り当てられることはありません。ただし、サービスが無期限に利用可能であることは保証しません。',
+				title: 'UUIDの恒久性',
+				body: 'UUIDは発行を受けたGitHubアカウントに恒久的に結び付けられ、別ユーザーへ再割り当てされることはありません。ただし、サービス自体の永続提供を保証するものではありません。'
 			},
 			intellectual: {
-				title: '知的財産権',
-				body: '本サービスのソースコードは非公開であり、無断でのアクセス、複製、リバースエンジニアリングは禁止されています。',
+				title: '公開ソースコードと権利',
+				body: '本サービスのソースコードは公開リポジトリで公開されています。コードの利用、複製、改変、再配布は、そのリポジトリのライセンスに従います。ただし、非公式のデプロイを公式のJustUUIDサービスとして偽ることは禁止します。'
 			},
 			disclaimer: {
 				title: '免責事項',
-				body: 'サービスはいかなる種類の保証もなく「現状のまま」提供されます。サービスの利用から生じるいかなる損害についても責任を負いません。',
-			},
-		},
-	},
+				body: '本サービスは現状有姿で提供され、いかなる保証も行いません。本サービスの利用によって生じた損害について、運営者は責任を負いません。'
+			}
+		}
+	}
 } as const;

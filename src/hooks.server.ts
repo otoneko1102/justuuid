@@ -3,12 +3,11 @@ import { verifyJWT } from '$lib/auth';
 import { detectLang } from '$lib/i18n';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// ── Language detection ─────────────────────────────────────
+	// Language detection
 	const cookieLang = event.cookies.get('lang');
 	const acceptLang = event.request.headers.get('Accept-Language');
 	event.locals.lang = detectLang(acceptLang, cookieLang);
-
-	// ── Session / auth ─────────────────────────────────────────
+	// Session handling
 	event.locals.user = null;
 	const token = event.cookies.get('session');
 

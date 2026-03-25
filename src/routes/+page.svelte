@@ -1,21 +1,19 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import GitHubIcon from '$lib/components/icons/GitHubIcon.svelte';
 	import { onMount, onDestroy } from 'svelte';
 	import { t } from '$lib/i18n';
+	import type { User } from '$lib/types';
 	import type { PageData } from './$types';
 
 	type UserSort = 'random' | 'newest' | 'oldest';
 	type HomePageData = PageData & {
 		lookupError?: string | null;
 		lookupUsername?: string;
-		showAll?: boolean;
-		sort?: UserSort;
 	};
 
 	let { data }: { data: PageData } = $props();
 	const homeData = $derived(data as HomePageData);
-	const currentSort = $derived(homeData.sort ?? 'random');
-	const currentShowAll = $derived(homeData.showAll ?? false);
 
 	const T = $derived(t(data.lang));
 	const lookupErrorMessage = $derived.by(() => {
@@ -27,22 +25,21 @@
 
 		if (data.lang === 'ja') {
 			return username
-				? `${username} \u306f JustUUID \u306b\u767b\u9332\u3055\u308c\u3066\u3044\u307e\u305b\u3093\u3002`
-				: '\u6307\u5b9a\u3055\u308c\u305f GitHub \u30e6\u30fc\u30b6\u30fc\u306f JustUUID \u306b\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002';
+				? `${username} は JustUUID に登録されていません。`
+				: '指定された GitHub ユーザーは JustUUID に見つかりませんでした。';
 		}
 
 		return username
 			? `${username} is not registered on JustUUID.`
 			: 'The requested GitHub user was not found on JustUUID.';
 	});
-	const showMoreLabel = $derived(data.lang === 'ja' ? '\u3082\u3063\u3068\u898b\u308b' : 'Show all users');
-	const showLessLabel = $derived(data.lang === 'ja' ? '\u9589\u3058\u308b' : 'Show fewer');
+	const showMoreLabel = $derived(data.lang === 'ja' ? 'もっと表示' : 'Load more');
 	const sortOptions = $derived(
 		data.lang === 'ja'
 			? [
-					{ value: 'random' as UserSort, label: '\u30e9\u30f3\u30c0\u30e0' },
-					{ value: 'newest' as UserSort, label: '\u65b0\u3057\u3044\u9806' },
-					{ value: 'oldest' as UserSort, label: '\u53e4\u3044\u9806' }
+					{ value: 'random' as UserSort, label: 'ランダム' },
+					{ value: 'newest' as UserSort, label: '新しい順' },
+					{ value: 'oldest' as UserSort, label: '古い順' }
 				]
 			: [
 					{ value: 'random' as UserSort, label: 'Random' },
@@ -52,55 +49,113 @@
 	);
 
 	let searchInput = $state(data.query);
+	let visibleUsers = $state<User[]>(data.users);
+	let currentSort = $state<UserSort>('random');
+	let isLoadingMore = $state(false);
+	let isSorting = $state(false);
 
-	function buildHomeUrl({
-		query = data.query,
+	$effect(() => {
+		searchInput = data.query;
+		visibleUsers = data.users;
+		currentSort = 'random';
+		isLoadingMore = false;
+		isSorting = false;
+	});
+
+	async function fetchUsers({
 		sort = currentSort,
-		showAll = currentShowAll
+		offset = 0,
+		limit = visibleUsers.length || 6,
+		excludeIds = []
 	}: {
-		query?: string;
 		sort?: UserSort;
-		showAll?: boolean;
-	} = {}) {
-		const params = new URLSearchParams();
-		const normalizedQuery = query.trim();
+		offset?: number;
+		limit?: number;
+		excludeIds?: string[];
+	}) {
+		const response = await fetch('/api/users', {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json'
+			},
+			body: JSON.stringify({
+				sort,
+				offset,
+				limit,
+				excludeIds
+			})
+		});
 
-		if (normalizedQuery) {
-			params.set('q', normalizedQuery);
+		if (!response.ok) {
+			throw new Error('Failed to fetch users');
 		}
 
-		if (sort !== 'random') {
-			params.set('sort', sort);
+		const payload = (await response.json()) as { users: User[] };
+		return payload.users;
+	}
+
+	async function changeSort(sort: UserSort) {
+		if (sort === currentSort || data.query || isLoadingMore) {
+			return;
 		}
 
-		if (showAll && !normalizedQuery) {
-			params.set('all', '1');
+		const previousSort = currentSort;
+		currentSort = sort;
+		isSorting = true;
+
+		try {
+			visibleUsers = await fetchUsers({
+				sort,
+				offset: 0,
+				limit: Math.max(visibleUsers.length, 6)
+			});
+		} catch {
+			currentSort = previousSort;
+		} finally {
+			isSorting = false;
+		}
+	}
+
+	async function loadMoreUsers() {
+		if (isLoadingMore || isSorting || data.query || visibleUsers.length >= data.totalCount) {
+			return;
 		}
 
-		const search = params.toString();
-		return search ? `/?${search}` : '/';
+		isLoadingMore = true;
+
+		try {
+			const nextUsers = await fetchUsers({
+				sort: currentSort,
+				offset: currentSort === 'random' ? 0 : visibleUsers.length,
+				limit: 12,
+				excludeIds: currentSort === 'random' ? visibleUsers.map((user) => user.id) : []
+			});
+			const existingIds = new Set(visibleUsers.map((user) => user.id));
+			visibleUsers = [...visibleUsers, ...nextUsers.filter((user) => !existingIds.has(user.id))];
+		} finally {
+			isLoadingMore = false;
+		}
 	}
 
 	function handleSearch(e: Event) {
 		e.preventDefault();
 		const q = searchInput.trim();
-		goto(buildHomeUrl({ query: q, showAll: false }), { invalidateAll: true });
+		goto(q ? `/?q=${encodeURIComponent(q)}` : '/', { invalidateAll: true });
 	}
 
 	function clearSearch() {
 		searchInput = '';
-		goto(buildHomeUrl({ query: '', showAll: false }), { invalidateAll: true });
+		goto('/', { invalidateAll: true });
 	}
 
 	function formatDate(iso: string, lang: 'en' | 'ja') {
 		return new Date(iso).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', {
 			year: 'numeric',
 			month: 'short',
-			day: 'numeric',
+			day: 'numeric'
 		});
 	}
 
-	// Animated UUID
 	const HEX = '0123456789abcdef';
 	const TEMPLATE = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
 	let animatedChars = $state(generateUuid());
@@ -110,13 +165,12 @@
 		return TEMPLATE.split('').map((c) => {
 			if (c === 'x') return HEX[Math.floor(Math.random() * 16)];
 			if (c === 'y') return HEX[Math.floor(Math.random() * 4) + 8];
-			return c; // '-' or '4'
+			return c;
 		});
 	}
 
 	onMount(() => {
 		interval = setInterval(() => {
-			// Mutate 3-5 random hex positions each tick
 			const next = [...animatedChars];
 			const positions = TEMPLATE.split('').reduce<number[]>((acc, c, i) => {
 				if (c === 'x' || c === 'y') acc.push(i);
@@ -140,16 +194,15 @@
 </script>
 
 <svelte:head>
-	<title>JustUUID — {T.meta.description}</title>
+	<title>JustUUID - {T.meta.description}</title>
 	<meta name="description" content={T.meta.ogDescription} />
-	<meta property="og:title" content="JustUUID — {T.meta.description}" />
+	<meta property="og:title" content="JustUUID - {T.meta.description}" />
 	<meta property="og:description" content={T.meta.ogDescription} />
 	<meta property="og:image" content={`${data.origin}/favicon.svg`} />
-	<meta name="twitter:title" content="JustUUID — {T.meta.description}" />
+	<meta name="twitter:title" content="JustUUID - {T.meta.description}" />
 	<meta name="twitter:description" content={T.meta.ogDescription} />
 </svelte:head>
 
-<!-- ── Hero ─────────────────────────────────────────────────── -->
 <section class="hero">
 	<div class="container hero-inner">
 		<h1 class="hero-title">{T.home.hero.title}</h1>
@@ -157,9 +210,7 @@
 
 		{#if !data.user}
 			<a href="/login" class="btn btn-primary btn-lg hero-cta" data-sveltekit-preload-data="off">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-					<path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-				</svg>
+				<GitHubIcon size={18} />
 				{T.home.hero.cta}
 			</a>
 		{:else}
@@ -169,18 +220,16 @@
 			</a>
 		{/if}
 
-		<!-- Animated UUID display -->
 		<div class="uuid-demo" aria-hidden="true">
 			<span class="mono uuid-demo-text">
 				{#each animatedChars as char, i (i)}
-					<span class="uuid-char" class:uuid-sep={char === '-' || (TEMPLATE[i] === '4')}>{char}</span>
+					<span class="uuid-char" class:uuid-sep={char === '-' || TEMPLATE[i] === '4'}>{char}</span>
 				{/each}
 			</span>
 		</div>
 	</div>
 </section>
 
-<!-- ── Cosmic collision banner ───────────────────────────────── -->
 {#if data.hasCollision}
 	<div class="cosmic-banner">
 		<div class="container cosmic-banner-inner">
@@ -199,7 +248,6 @@
 	</div>
 {/if}
 
-<!-- ── User list ─────────────────────────────────────────────── -->
 <section class="users-section">
 	<div class="container">
 		<div class="section-header">
@@ -209,7 +257,6 @@
 			{/if}
 		</div>
 
-		<!-- Search bar -->
 		<form class="search-form" onsubmit={handleSearch}>
 			<div class="search-input-wrap">
 				<span class="mi mi-sm search-icon">search</span>
@@ -227,25 +274,29 @@
 			</div>
 		</form>
 
-		<div class="sort-row" aria-label="Sort users">
-			{#each sortOptions as option}
-				<a
-					href={buildHomeUrl({ sort: option.value, showAll: currentShowAll })}
-					class="sort-chip"
-					class:active={option.value === currentSort}
-				>
-					{option.label}
-				</a>
-			{/each}
-		</div>
+		{#if !data.query}
+			<div class="sort-row" aria-label="Sort users">
+				{#each sortOptions as option}
+					<button
+						type="button"
+						class="sort-chip"
+						class:active={option.value === currentSort}
+						onclick={() => changeSort(option.value)}
+						disabled={isSorting || isLoadingMore}
+					>
+						{option.label}
+					</button>
+				{/each}
+			</div>
+		{/if}
 
-		{#if data.query && data.users.length > 0}
+		{#if data.query && visibleUsers.length > 0}
 			<p class="search-result-count">
-				{T.home.users.searchResults.replace('{count}', String(data.users.length)).replace('{query}', data.query)}
+				{T.home.users.searchResults.replace('{count}', String(visibleUsers.length)).replace('{query}', data.query)}
 			</p>
 		{/if}
 
-		{#if data.users.length === 0}
+		{#if visibleUsers.length === 0}
 			<div class="empty-state">
 				{#if data.query}
 					<p>{T.home.users.noResults.replace('{query}', data.query)}</p>
@@ -255,15 +306,10 @@
 			</div>
 		{:else}
 			<div class="user-grid">
-				{#each data.users as user (user.id)}
+				{#each visibleUsers as user (user.id)}
 					<a href="/u/{user.id}" class="user-card" class:cosmic-card={user.collision_detected}>
 						<div class="user-card-header">
-							<img
-								src={user.avatar_url}
-								alt={user.username}
-								class="user-avatar"
-								loading="lazy"
-							/>
+							<img src={user.avatar_url} alt={user.username} class="user-avatar" loading="lazy" />
 							<div class="user-info">
 								<span class="username">@{user.username}</span>
 								{#if user.collision_detected}
@@ -277,32 +323,32 @@
 								{T.home.users.memberSince} {formatDate(user.created_at, data.lang)}
 							</span>
 							<span class="view-link">
-							{T.home.users.viewProfile}
-							<span class="mi mi-sm">chevron_right</span>
-						</span>
+								{T.home.users.viewProfile}
+								<span class="mi mi-sm">chevron_right</span>
+							</span>
 						</div>
 					</a>
 				{/each}
 			</div>
 
-			{#if !data.query && data.totalCount > data.users.length && !currentShowAll}
+			{#if !data.query && data.totalCount > visibleUsers.length}
 				<div class="users-more">
-					<a href={buildHomeUrl({ showAll: true })} class="btn btn-ghost">
-						{showMoreLabel}
-						<span class="mi mi-sm">expand_more</span>
-					</a>
+					<button
+						type="button"
+						class="btn btn-ghost"
+						onclick={loadMoreUsers}
+						disabled={isLoadingMore || isSorting}
+					>
+						{#if isLoadingMore}
+							{data.lang === 'ja' ? '読み込み中...' : 'Loading...'}
+						{:else}
+							{showMoreLabel}
+						{/if}
+					</button>
 				</div>
 			{/if}
 
-			{#if !data.query && currentShowAll}
-				<div class="users-more">
-					<a href={buildHomeUrl({ showAll: false })} class="btn btn-ghost btn-sm">
-						{showLessLabel}
-					</a>
-				</div>
-			{/if}
-
-			{#if !data.query && !currentShowAll}
+			{#if !data.query}
 				<p class="random-hint">{T.home.users.randomHint}</p>
 			{/if}
 		{/if}
@@ -310,7 +356,6 @@
 </section>
 
 <style>
-	/* ── Hero ───────────────────────────────────────────────── */
 	.hero {
 		padding-block: var(--space-24) var(--space-16);
 		text-align: center;
@@ -373,10 +418,9 @@
 		text-shadow: none;
 	}
 
-	/* ── Cosmic banner ──────────────────────────────────────── */
 	.cosmic-banner {
-		background: linear-gradient(135deg, rgba(240,171,252,0.08), rgba(129,140,248,0.08));
-		border-block: 1px solid rgba(240,171,252,0.2);
+		background: linear-gradient(135deg, rgba(240, 171, 252, 0.08), rgba(129, 140, 248, 0.08));
+		border-block: 1px solid rgba(240, 171, 252, 0.2);
 		padding-block: var(--space-3);
 		text-align: center;
 	}
@@ -413,7 +457,6 @@
 		color: inherit;
 	}
 
-	/* ── Users section ──────────────────────────────────────── */
 	.users-section {
 		padding-bottom: var(--space-16);
 	}
@@ -438,7 +481,6 @@
 		color: var(--text-subtle);
 	}
 
-	/* ── Search ─────────────────────────────────────────────── */
 	.search-form {
 		margin-bottom: var(--space-4);
 	}
@@ -523,9 +565,11 @@
 		font-weight: 600;
 		letter-spacing: 0.03em;
 		transition: all 0.15s ease;
+		font-family: var(--font-sans);
+		cursor: pointer;
 	}
 
-	.sort-chip:hover {
+	.sort-chip:hover:not(:disabled) {
 		border-color: var(--accent);
 		color: var(--text);
 	}
@@ -549,7 +593,6 @@
 		color: var(--text-muted);
 	}
 
-	/* ── User grid ──────────────────────────────────────────── */
 	.user-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

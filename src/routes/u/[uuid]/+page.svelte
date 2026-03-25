@@ -35,23 +35,21 @@
 </script>
 
 <svelte:head>
-	<title>@{data.user.username} — JustUUID</title>
+	<title>@{data.user.username} - JustUUID</title>
 	<meta name="description" content={ogDesc} />
-	<meta property="og:title" content="@{data.user.username} — JustUUID" />
+	<meta property="og:title" content="@{data.user.username} - JustUUID" />
 	<meta property="og:description" content={ogDesc} />
 	<meta property="og:image" content={data.user.avatar_url} />
 	<meta property="og:url" content={shareUrl} />
 	<meta property="og:type" content="profile" />
 	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="@{data.user.username} — JustUUID" />
+	<meta name="twitter:title" content="@{data.user.username} - JustUUID" />
 	<meta name="twitter:description" content={ogDesc} />
 	<meta name="twitter:image" content={data.user.avatar_url} />
 </svelte:head>
 
 <div class="profile-page container">
-
-	<!-- Owner banner -->
-	{#if data.isOwner}
+{#if data.isOwner}
 		<div class="owner-banner">
 			<span class="mi mi-sm banner-icon">info</span>
 			<div class="owner-banner-content">
@@ -72,11 +70,8 @@
 			</div>
 		</div>
 	{/if}
-
-	<!-- Profile card -->
-	<div class="profile-card" class:cosmic-profile={data.user.collision_detected}>
-		<!-- Avatar -->
-		<div class="avatar-wrap">
+<div class="profile-card" class:cosmic-profile={data.user.collision_detected}>
+<div class="avatar-wrap">
 			<img
 				src={data.user.avatar_url}
 				alt="@{data.user.username}"
@@ -86,18 +81,12 @@
 				<div class="cosmic-ring" aria-hidden="true"></div>
 			{/if}
 		</div>
-
-		<!-- Username -->
-		<h1 class="username"><a href={"https://github.com/" + data.user.username} target="_blank">@{data.user.username}</a></h1>
-
-		<!-- UUID display -->
-		<div class="uuid-block">
+<h1 class="username"><a href={"https://github.com/" + data.user.username} target="_blank">@{data.user.username}</a></h1>
+<div class="uuid-block">
 			<p class="uuid-label">UUID</p>
 			<p class="uuid mono">{data.user.id}</p>
 		</div>
-
-		<!-- Actions -->
-		<div class="actions">
+<div class="actions">
 			<button class="btn btn-primary" onclick={copyUuid}>
 				{#if copied}
 					<span class="mi mi-sm">check</span>
@@ -108,16 +97,12 @@
 				{/if}
 			</button>
 		</div>
-
-		<!-- Member since -->
-		<p class="member-since">
+<p class="member-since">
 			<span class="mi mi-sm" style="color: var(--text-subtle)">calendar_today</span>
 			{T.user.memberSince} {formatDate(data.user.created_at, data.lang)}
 		</p>
 	</div>
-
-	<!-- Cosmic collision easter egg -->
-	{#if data.user.collision_detected}
+{#if data.user.collision_detected}
 		<div class="cosmic-event">
 			<span class="mi mi-lg cosmic-icon">casino</span>
 			<div class="cosmic-event-content">
@@ -138,9 +123,7 @@
 		gap: var(--space-6);
 		max-width: 560px;
 	}
-
-	/* ── Owner banner ───────────────────────────────────────── */
-	.owner-banner {
+.owner-banner {
 		width: 100%;
 		display: flex;
 		align-items: flex-start;
@@ -216,9 +199,7 @@
 		color: var(--accent);
 		border-color: var(--accent);
 	}
-
-	/* ── Profile card ───────────────────────────────────────── */
-	.profile-card {
+.profile-card {
 		width: 100%;
 		background: var(--surface);
 		border: 1px solid var(--border);
@@ -239,9 +220,7 @@
 			var(--surface) 40%
 		);
 	}
-
-	/* ── Avatar ─────────────────────────────────────────────── */
-	.avatar-wrap {
+.avatar-wrap {
 		position: relative;
 		width: 100px;
 		height: 100px;
@@ -271,16 +250,12 @@
 	@keyframes spin {
 		to { transform: rotate(360deg); }
 	}
-
-	/* ── Username ───────────────────────────────────────────── */
-	.username {
+.username {
 		font-size: 1.625rem;
 		font-weight: 700;
 		letter-spacing: -0.02em;
 	}
-
-	/* ── UUID block ─────────────────────────────────────────── */
-	.uuid-block {
+.uuid-block {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -309,24 +284,18 @@
 		line-height: 1.6;
 		text-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
 	}
-
-	/* ── Actions ────────────────────────────────────────────── */
-	.actions {
+.actions {
 		display: flex;
 		gap: var(--space-3);
 	}
-
-	/* ── Member since ───────────────────────────────────────── */
-	.member-since {
+.member-since {
 		font-size: 0.8125rem;
 		color: var(--text-subtle);
 		display: flex;
 		align-items: center;
 		gap: var(--space-1);
 	}
-
-	/* ── Cosmic event ───────────────────────────────────────── */
-	.cosmic-event {
+.cosmic-event {
 		width: 100%;
 		display: flex;
 		gap: var(--space-4);

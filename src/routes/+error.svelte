@@ -3,13 +3,12 @@
 	import { t } from '$lib/i18n';
 	import type { LayoutData } from './$types';
 
-	// Access lang from parent layout data
 	const lang = $derived(($page.data as LayoutData).lang ?? 'en');
 	const T = $derived(t(lang));
 </script>
 
 <svelte:head>
-	<title>{T.errors.notFound} — JustUUID</title>
+	<title>{T.errors.notFound} - JustUUID</title>
 </svelte:head>
 
 <div class="error-page container">

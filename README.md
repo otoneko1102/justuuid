@@ -12,6 +12,16 @@ After signing in with GitHub, a user gets:
 
 Live site: [justuuid.pages.dev](https://justuuid.pages.dev/)
 
+## README Badge
+
+Registered user count badge:
+
+```md
+![JustUUID Users](https://justuuid.pages.dev/api/badge/users.svg)
+```
+
+Badge endpoint: `GET /api/badge/users.svg`
+
 ## What It Does
 
 - Sign in with GitHub and receive a UUID v4

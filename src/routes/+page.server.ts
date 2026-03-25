@@ -5,24 +5,16 @@ import {
 	getUserByUsername,
 	hasAnyCollision,
 	listUsers,
-	searchUsers,
-	type UserSort
+	searchUsers
 } from '$lib/db';
 
 export const load: PageServerLoad = async ({ platform, url }) => {
 	const db = platform?.env?.DB;
 	const query = url.searchParams.get('q')?.trim() ?? '';
-	const showAll = url.searchParams.get('all') === '1';
-	const sort = ((): UserSort => {
-		const value = url.searchParams.get('sort');
-		return value === 'newest' || value === 'oldest' ? value : 'random';
-	})();
 	const lookupUsername = url.searchParams.get('user')?.trim() ?? '';
 	const lookupError = url.searchParams.get('error') === 'user-not-found';
 	const baseData = {
 		query,
-		showAll,
-		sort,
 		lookupError: lookupError ? 'user-not-found' : null,
 		lookupUsername
 	};
@@ -59,10 +51,8 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 		]);
 
 		const users = query
-			? await searchUsers(db, query, 30, sort)
-			: showAll
-				? await listUsers(db, totalCount, sort)
-				: await listUsers(db, 6, sort);
+			? await searchUsers(db, query, 30)
+			: await listUsers(db, 6);
 
 		return {
 			users,

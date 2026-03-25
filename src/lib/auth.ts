@@ -2,8 +2,7 @@ import type { JWTPayload } from '$lib/types';
 
 const encoder = new TextEncoder();
 
-// Cast helper: TypeScript 5.7 made Uint8Array generic which breaks
-// @cloudflare/workers-types — safe because Uint8Array.buffer IS ArrayBuffer.
+// Cast Uint8Array.buffer to ArrayBuffer for workers-types compatibility.
 function toBuffer(data: Uint8Array): ArrayBuffer {
 	return data.buffer as unknown as ArrayBuffer;
 }

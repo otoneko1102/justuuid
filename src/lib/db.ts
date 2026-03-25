@@ -57,7 +57,7 @@ export async function createUser(
 	let collisionDetected = false;
 	let uuid: string;
 
-	// Generate a UUID v4 and verify it's unique (essentially always true)
+	// Generate a UUID and confirm it is unique.
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		uuid = crypto.randomUUID();
@@ -66,7 +66,7 @@ export async function createUser(
 			.bind(uuid)
 			.first();
 		if (!existing) break;
-		// An actual UUID v4 collision — astronomically rare!
+		// A real UUID collision would be extremely rare.
 		collisionDetected = true;
 	}
 
@@ -115,12 +115,23 @@ function getUserSortOrder(sort: UserSort): string {
 export async function listUsers(
 	db: D1Database,
 	limit = 12,
-	sort: UserSort = 'random'
+	sort: UserSort = 'random',
+	offset = 0,
+	excludeIds: string[] = []
 ): Promise<User[]> {
+	if (sort === 'random' && excludeIds.length > 0) {
+		const placeholders = excludeIds.map(() => '?').join(', ');
+		const { results } = await db
+			.prepare(`SELECT * FROM users WHERE id NOT IN (${placeholders}) ORDER BY RANDOM() LIMIT ?`)
+			.bind(...excludeIds, limit)
+			.all<Record<string, unknown>>();
+		return results.map(mapRow);
+	}
+
 	const orderBy = getUserSortOrder(sort);
 	const { results } = await db
-		.prepare(`SELECT * FROM users ORDER BY ${orderBy} LIMIT ?`)
-		.bind(limit)
+		.prepare(`SELECT * FROM users ORDER BY ${orderBy} LIMIT ? OFFSET ?`)
+		.bind(limit, offset)
 		.all<Record<string, unknown>>();
 	return results.map(mapRow);
 }
@@ -130,12 +141,13 @@ export async function searchUsers(
 	db: D1Database,
 	query: string,
 	limit = 30,
-	sort: UserSort = 'random'
+	sort: UserSort = 'random',
+	offset = 0
 ): Promise<User[]> {
 	const orderBy = getUserSortOrder(sort);
 	const { results } = await db
-		.prepare(`SELECT * FROM users WHERE username LIKE ? ORDER BY ${orderBy} LIMIT ?`)
-		.bind(`%${query}%`, limit)
+		.prepare(`SELECT * FROM users WHERE username LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`)
+		.bind(`%${query}%`, limit, offset)
 		.all<Record<string, unknown>>();
 	return results.map(mapRow);
 }
