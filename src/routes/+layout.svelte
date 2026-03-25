@@ -148,6 +148,11 @@
 		<div class="container footer-inner">
 			<span class="footer-tagline mono">{T.footer.tagline}</span>
 			<div class="footer-links">
+				<a
+					href="https://github.com/otoneko1102/justuuid"
+					target="_blank"
+					rel="noreferrer"
+				>GitHub</a>
 				<a href="/privacy-policy">{T.footer.privacyPolicy}</a>
 				<a href="/terms-of-service">{T.footer.termsOfService}</a>
 			</div>
