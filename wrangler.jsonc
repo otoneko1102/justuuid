@@ -5,9 +5,6 @@
   "compatibility_date": "2025-01-01",
   "compatibility_flags": ["nodejs_compat"],
 
-  // SvelteKit Cloudflare adapter output directory
-  "pages_build_output_dir": ".svelte-kit/cloudflare",
-
-  // Runtime bindings and secrets are configured in the Cloudflare Pages dashboard.
+  // Local-only Wrangler settings. Production bindings and secrets live in the Cloudflare Pages dashboard.
   "vars": {}
 }

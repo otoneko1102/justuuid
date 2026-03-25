@@ -11,7 +11,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "db:migrate": "wrangler d1 migrations apply justuuid-db",
     "db:migrate:local": "wrangler d1 migrations apply justuuid-db --local",
-    "deploy": "npm run build && wrangler pages deploy"
+    "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name justuuid"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250214.0",

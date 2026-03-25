@@ -47,6 +47,8 @@ Save the returned `database_id` somewhere private. Do not commit it.
 
 ## Cloudflare Pages Configuration
 
+If the Cloudflare dashboard says this project is managed through `wrangler.toml` or `wrangler.jsonc`, first deploy a revision that does not use `pages_build_output_dir` in the Wrangler file. This repository is already set up that way so the dashboard can become editable again after the next deployment.
+
 In Cloudflare Dashboard:
 
 1. Open `Workers & Pages`
@@ -127,3 +129,5 @@ npm run deploy
 ```
 
 If GitHub integration is enabled for Cloudflare Pages, keep bindings and secrets in the Cloudflare dashboard.
+
+If you are switching an existing Pages project from Wrangler-managed configuration to dashboard-managed configuration, push this change first, let Cloudflare create a new deployment, and then add the `DB` binding in the dashboard.
