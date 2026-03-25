@@ -4,11 +4,14 @@
 	import { t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
+	type UserSort = 'random' | 'newest' | 'oldest';
+
 	let { data }: { data: PageData } = $props();
 	const homeData = data as PageData & {
 		lookupError?: string | null;
 		lookupUsername?: string;
 		showAll?: boolean;
+		sort?: UserSort;
 	};
 
 	const T = $derived(t(data.lang));
@@ -31,18 +34,59 @@
 	});
 	const showMoreLabel = $derived(data.lang === 'ja' ? '\u3082\u3063\u3068\u898b\u308b' : 'Show all users');
 	const showLessLabel = $derived(data.lang === 'ja' ? '\u9589\u3058\u308b' : 'Show fewer');
+	const sortOptions = $derived(
+		data.lang === 'ja'
+			? [
+					{ value: 'random' as UserSort, label: '\u30e9\u30f3\u30c0\u30e0' },
+					{ value: 'newest' as UserSort, label: '\u65b0\u3057\u3044\u9806' },
+					{ value: 'oldest' as UserSort, label: '\u53e4\u3044\u9806' }
+				]
+			: [
+					{ value: 'random' as UserSort, label: 'Random' },
+					{ value: 'newest' as UserSort, label: 'Newest' },
+					{ value: 'oldest' as UserSort, label: 'Oldest' }
+				]
+	);
 
 	let searchInput = $state(data.query);
+
+	function buildHomeUrl({
+		query = data.query,
+		sort = homeData.sort ?? 'random',
+		showAll = homeData.showAll ?? false
+	}: {
+		query?: string;
+		sort?: UserSort;
+		showAll?: boolean;
+	} = {}) {
+		const params = new URLSearchParams();
+		const normalizedQuery = query.trim();
+
+		if (normalizedQuery) {
+			params.set('q', normalizedQuery);
+		}
+
+		if (sort !== 'random') {
+			params.set('sort', sort);
+		}
+
+		if (showAll && !normalizedQuery) {
+			params.set('all', '1');
+		}
+
+		const search = params.toString();
+		return search ? `/?${search}` : '/';
+	}
 
 	function handleSearch(e: Event) {
 		e.preventDefault();
 		const q = searchInput.trim();
-		goto(q ? `/?q=${encodeURIComponent(q)}` : '/', { invalidateAll: true });
+		goto(buildHomeUrl({ query: q, showAll: false }), { invalidateAll: true });
 	}
 
 	function clearSearch() {
 		searchInput = '';
-		goto('/', { invalidateAll: true });
+		goto(buildHomeUrl({ query: '', showAll: false }), { invalidateAll: true });
 	}
 
 	function formatDate(iso: string, lang: 'en' | 'ja') {
@@ -180,6 +224,18 @@
 			</div>
 		</form>
 
+		<div class="sort-row" aria-label="Sort users">
+			{#each sortOptions as option}
+				<a
+					href={buildHomeUrl({ sort: option.value, showAll: homeData.showAll ?? false })}
+					class="sort-chip"
+					class:active={option.value === (homeData.sort ?? 'random')}
+				>
+					{option.label}
+				</a>
+			{/each}
+		</div>
+
 		{#if data.query && data.users.length > 0}
 			<p class="search-result-count">
 				{T.home.users.searchResults.replace('{count}', String(data.users.length)).replace('{query}', data.query)}
@@ -228,7 +284,7 @@
 
 			{#if !data.query && data.totalCount > data.users.length && !homeData.showAll}
 				<div class="users-more">
-					<a href="/?all=1" class="btn btn-ghost">
+					<a href={buildHomeUrl({ showAll: true })} class="btn btn-ghost">
 						{showMoreLabel}
 						<span class="mi mi-sm">expand_more</span>
 					</a>
@@ -237,7 +293,7 @@
 
 			{#if !data.query && homeData.showAll}
 				<div class="users-more">
-					<a href="/" class="btn btn-ghost btn-sm">
+					<a href={buildHomeUrl({ showAll: false })} class="btn btn-ghost btn-sm">
 						{showLessLabel}
 					</a>
 				</div>
@@ -442,6 +498,39 @@
 		font-size: 0.8125rem;
 		color: var(--text-muted);
 		margin-bottom: var(--space-4);
+	}
+
+	.sort-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		margin-bottom: var(--space-4);
+	}
+
+	.sort-chip {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-1) var(--space-3);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+		color: var(--text-muted);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		transition: all 0.15s ease;
+	}
+
+	.sort-chip:hover {
+		border-color: var(--accent);
+		color: var(--text);
+	}
+
+	.sort-chip.active {
+		background: rgba(129, 140, 248, 0.14);
+		border-color: rgba(129, 140, 248, 0.4);
+		color: var(--accent);
 	}
 
 	.random-hint {

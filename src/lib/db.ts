@@ -1,6 +1,8 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import type { User } from '$lib/types';
 
+export type UserSort = 'random' | 'newest' | 'oldest';
+
 function mapRow(row: Record<string, unknown>): User {
 	return {
 		id: row.id as string,
@@ -98,19 +100,41 @@ export async function updateUser(
 		.run();
 }
 
-/** Fetch a random selection of users for the home page listing. */
-export async function listUsers(db: D1Database, limit = 12): Promise<User[]> {
+function getUserSortOrder(sort: UserSort): string {
+	switch (sort) {
+		case 'newest':
+			return 'created_at DESC';
+		case 'oldest':
+			return 'created_at ASC';
+		default:
+			return 'RANDOM()';
+	}
+}
+
+/** Fetch a user selection for the home page listing. */
+export async function listUsers(
+	db: D1Database,
+	limit = 12,
+	sort: UserSort = 'random'
+): Promise<User[]> {
+	const orderBy = getUserSortOrder(sort);
 	const { results } = await db
-		.prepare('SELECT * FROM users ORDER BY RANDOM() LIMIT ?')
+		.prepare(`SELECT * FROM users ORDER BY ${orderBy} LIMIT ?`)
 		.bind(limit)
 		.all<Record<string, unknown>>();
 	return results.map(mapRow);
 }
 
 /** Search users by username (case-insensitive partial match). */
-export async function searchUsers(db: D1Database, query: string, limit = 30): Promise<User[]> {
+export async function searchUsers(
+	db: D1Database,
+	query: string,
+	limit = 30,
+	sort: UserSort = 'random'
+): Promise<User[]> {
+	const orderBy = getUserSortOrder(sort);
 	const { results } = await db
-		.prepare('SELECT * FROM users WHERE username LIKE ? ORDER BY username ASC LIMIT ?')
+		.prepare(`SELECT * FROM users WHERE username LIKE ? ORDER BY ${orderBy} LIMIT ?`)
 		.bind(`%${query}%`, limit)
 		.all<Record<string, unknown>>();
 	return results.map(mapRow);
