@@ -1,5 +1,7 @@
 # JustUUID
 
+![JustUUID Users](https://justuuid.pages.dev/api/badge/users.svg)
+
 **Your permanent identity, one UUID at a time.**
 
 JustUUID is a small web service that assigns a permanent UUID v4 to a GitHub account.
@@ -21,6 +23,22 @@ Registered user count badge:
 ```
 
 Badge endpoint: `GET /api/badge/users.svg`
+
+UUID badge by GitHub username:
+
+```md
+![octocat UUID](https://justuuid.pages.dev/api/badge/user/octocat.svg)
+```
+
+Endpoint: `GET /api/badge/user/{github-username}.svg`
+
+UUID badge by UUID:
+
+```md
+![UUID badge](https://justuuid.pages.dev/api/badge/u/00000000-0000-4000-8000-000000000000.svg)
+```
+
+Endpoint: `GET /api/badge/u/{uuid}.svg`
 
 ## What It Does
 
