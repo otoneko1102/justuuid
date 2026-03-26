@@ -74,6 +74,7 @@
 						href="/logout"
 						class="btn btn-ghost btn-sm icon-only"
 						data-sveltekit-preload-data="off"
+						data-sveltekit-reload
 						title={T.nav.logout}
 					>
 						<span class="mi mi-sm">logout</span>
@@ -139,6 +140,7 @@
 							href="/logout"
 							class="mobile-menu-link"
 							data-sveltekit-preload-data="off"
+							data-sveltekit-reload
 							onclick={closeMenu}
 						>
 							<span class="mi mi-sm">logout</span>

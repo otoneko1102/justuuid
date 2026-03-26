@@ -222,21 +222,27 @@
 		<h1 class="hero-title">{T.home.hero.title}</h1>
 		<p class="hero-subtitle">{T.home.hero.subtitle}</p>
 
-		{#if !data.user}
-			<a
-				href="/login"
-				class="btn btn-primary btn-lg hero-cta"
-				data-sveltekit-preload-data="off"
-			>
-				<GitHubIcon size={18} />
-				{T.home.hero.cta}
+		<div class="hero-actions">
+			{#if !data.user}
+				<a
+					href="/login"
+					class="btn btn-primary btn-lg hero-cta"
+					data-sveltekit-preload-data="off"
+				>
+					<GitHubIcon size={18} />
+					{T.home.hero.cta}
+				</a>
+			{:else}
+				<a href="/u/{data.user.id}" class="btn btn-ghost btn-lg hero-cta">
+					{T.nav.myPage}
+					<span class="mi">arrow_forward</span>
+				</a>
+			{/if}
+			<a href="/ranking" class="btn btn-ghost btn-lg hero-cta-sub">
+				<span class="mi">leaderboard</span>
+				{T.nav.ranking}
 			</a>
-		{:else}
-			<a href="/u/{data.user.id}" class="btn btn-ghost btn-lg hero-cta">
-				{T.nav.myPage}
-				<span class="mi">arrow_forward</span>
-			</a>
-		{/if}
+		</div>
 
 		<div class="uuid-demo" aria-hidden="true">
 			<span class="mono uuid-demo-text">
@@ -422,6 +428,18 @@
 
 	.hero-cta {
 		margin-top: var(--space-2);
+	}
+
+	.hero-actions {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+		margin-top: var(--space-2);
+	}
+
+	.hero-cta-sub {
+		padding-inline: var(--space-6);
 	}
 
 	.uuid-demo {
