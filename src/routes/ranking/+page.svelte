@@ -53,7 +53,7 @@
 							<img src={pair.avatar_url_a} alt="@{pair.username_a}" class="pair-avatar" />
 							<div class="pair-user-info">
 								<span class="pair-username">@{pair.username_a}</span>
-								<span class="mono pair-uuid">{pair.uuid_a}</span>
+								<span class="mono pair-uuid">{pair.uuid_a.slice(0, 8)}…</span>
 							</div>
 						</a>
 
@@ -65,7 +65,7 @@
 							<img src={pair.avatar_url_b} alt="@{pair.username_b}" class="pair-avatar" />
 							<div class="pair-user-info">
 								<span class="pair-username">@{pair.username_b}</span>
-								<span class="mono pair-uuid">{pair.uuid_b}</span>
+								<span class="mono pair-uuid">{pair.uuid_b.slice(0, 8)}…</span>
 							</div>
 						</a>
 					</div>
@@ -253,6 +253,7 @@
 
 	.pair-vs {
 		flex-shrink: 0;
+		padding-inline: var(--space-2);
 	}
 
 	.pair-score-wrap {

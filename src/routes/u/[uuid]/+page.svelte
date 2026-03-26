@@ -117,7 +117,7 @@
 							<img src={su.avatar_url} alt="@{su.username}" class="similar-avatar" />
 							<div class="similar-info">
 								<span class="similar-username">@{su.username}</span>
-								<span class="uuid mono similar-uuid">{su.id}</span>
+								<span class="uuid mono similar-uuid">{su.id.slice(0, 8)}…</span>
 							</div>
 							<div class="similar-score-wrap">
 								<span class="similar-pct">{(su.score * 100).toFixed(2)}%</span>
