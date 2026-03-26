@@ -51,6 +51,21 @@
 					{ value: 'oldest' as UserSort, label: 'Oldest' },
 				],
 	);
+	const sortHint = $derived.by(() => {
+		if (currentSort === 'random') {
+			return T.home.users.randomHint;
+		}
+
+		if (data.lang === 'ja') {
+			return currentSort === 'newest'
+				? '新しい順で表示中です。'
+				: '古い順で表示中です。';
+		}
+
+		return currentSort === 'newest'
+			? 'Showing users sorted by newest first.'
+			: 'Showing users sorted by oldest first.';
+	});
 
 	let searchInput = $state('');
 	let visibleUsers = $state<User[]>([]);
@@ -390,7 +405,7 @@
 			{/if}
 
 			{#if !data.query}
-				<p class="random-hint">{T.home.users.randomHint}</p>
+				<p class="random-hint">{sortHint}</p>
 			{/if}
 		{/if}
 	</div>
