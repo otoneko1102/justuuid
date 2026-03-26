@@ -1,28 +1,7 @@
 import { redirect, isRedirect, isHttpError } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { signJWT } from '$lib/auth';
-import {
-	getUserByGithubId,
-	createUser,
-	updateUser,
-	getAllUserIds,
-	replaceSimilarityPairs,
-} from '$lib/db';
-import { topPairs } from '$lib/similarity';
-import { MAX_GLOBAL_RANKING_PAIRS } from '$lib/ranking';
-
-/** Fire-and-forget: recompute the global similarity ranking. Never throws. */
-async function refreshGlobalSimilarityPairs(
-	db: Parameters<typeof getAllUserIds>[0],
-): Promise<void> {
-	const allIds = await getAllUserIds(db);
-	const maxPairs = Math.min(
-		MAX_GLOBAL_RANKING_PAIRS,
-		Math.floor((allIds.length * (allIds.length - 1)) / 2),
-	);
-	const pairs = topPairs(allIds, maxPairs);
-	await replaceSimilarityPairs(db, pairs);
-}
+import { getUserByGithubId, createUser, updateUser } from '$lib/db';
 
 interface GitHubUser {
 	id: number;
@@ -117,8 +96,6 @@ export const load: PageServerLoad = async ({
 				githubUser.login,
 				githubUser.avatar_url,
 			);
-			// Fire-and-forget: refresh global ranking on new user signup. Never blocks login.
-			refreshGlobalSimilarityPairs(env.DB).catch(() => {});
 		} else {
 			// Update profile info in case they changed their GitHub name/avatar
 			await updateUser(
