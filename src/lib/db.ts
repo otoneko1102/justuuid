@@ -232,6 +232,30 @@ export async function replaceSimilarityPairs(
 	await db.batch([deleteStmt, ...insertStmts]);
 }
 
+/** Ensure similarity ranking schema exists. */
+export async function ensureSimilarityPairsSchema(
+	db: D1Database,
+): Promise<void> {
+	await db
+		.prepare(
+			`CREATE TABLE IF NOT EXISTS similarity_pairs (
+        uuid_a TEXT NOT NULL,
+        uuid_b TEXT NOT NULL,
+        score  REAL NOT NULL,
+        PRIMARY KEY (uuid_a, uuid_b),
+        FOREIGN KEY (uuid_a) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (uuid_b) REFERENCES users(id) ON DELETE CASCADE
+      )`,
+		)
+		.run();
+
+	await db
+		.prepare(
+			'CREATE INDEX IF NOT EXISTS idx_similarity_score ON similarity_pairs(score DESC)',
+		)
+		.run();
+}
+
 /**
  * Fetch the top similarity pairs, joined with user data.
  * Returns at most `limit` rows, sorted by score DESC.

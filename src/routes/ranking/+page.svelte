@@ -33,7 +33,9 @@
 		<div class="empty-state">
 			<span class="mi empty-icon">group_add</span>
 			<p class="empty-text">{T.ranking.empty}</p>
-			<a href="/login" class="btn btn-primary btn-sm">{T.nav.login}</a>
+			{#if !data.user}
+				<a href="/login" class="btn btn-primary btn-sm">{T.nav.login}</a>
+			{/if}
 		</div>
 	{:else}
 		<ol class="pairs-list">

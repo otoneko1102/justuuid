@@ -1,20 +1,37 @@
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getTopSimilarityPairs } from '$lib/db';
+import {
+	ensureSimilarityPairsSchema,
+	getAllUserIds,
+	getTopSimilarityPairs,
+	replaceSimilarityPairs,
+} from '$lib/db';
+import { topPairs } from '$lib/similarity';
 
 export const load: PageServerLoad = async ({ platform }) => {
 	const db = platform?.env?.DB;
 
 	if (!db) {
-		throw error(500, 'Database not available');
+		return { pairs: [] };
 	}
 
-	let pairs;
 	try {
-		pairs = await getTopSimilarityPairs(db, 50);
-	} catch {
-		throw error(503, 'Database temporarily unavailable');
-	}
+		await ensureSimilarityPairsSchema(db);
+		let pairs = await getTopSimilarityPairs(db, 50);
 
-	return { pairs };
+		// Backfill ranking table on-demand if it is empty.
+		// This avoids blank ranking pages when `similarity_pairs` has not been populated yet.
+		if (pairs.length === 0) {
+			const allIds = await getAllUserIds(db);
+
+			if (allIds.length >= 2) {
+				const computedPairs = topPairs(allIds, 100);
+				await replaceSimilarityPairs(db, computedPairs);
+				pairs = await getTopSimilarityPairs(db, 50);
+			}
+		}
+
+		return { pairs };
+	} catch {
+		return { pairs: [] };
+	}
 };
