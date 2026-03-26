@@ -7,6 +7,7 @@ export const ja = {
 	nav: {
 		home: 'ホーム',
 		myPage: 'マイページ',
+		ranking: 'ランキング',
 		login: 'GitHubでログイン',
 		logout: 'サインアウト'
 	},
@@ -49,7 +50,17 @@ export const ja = {
 			badge: '宇宙的衝突',
 			title: 'UUIDの衝突が検出されました',
 			description: 'このUUIDは衝突のあとに生成されました。極めて低い確率の出来事です。'
+		},
+		similar: {
+			title: '最も近いUUID',
+			hint: '先頭のビットほど重みが大きく計算されます。',
+			empty: 'まだ他のユーザーが登録されていません。'
 		}
+	},
+	ranking: {
+		title: 'UUID類似度ランキング',
+		subtitle: '全ユーザーの中で最も近いUUIDのペア。先頭のビットほど重みが大きく計算されます。',
+		empty: 'まだペアがありません。最初の1人になりましょう！'
 	},
 	auth: {
 		error: '認証に失敗しました。もう一度お試しください。',

@@ -7,6 +7,7 @@ export const en = {
 	nav: {
 		home: 'Home',
 		myPage: 'My Page',
+		ranking: 'Ranking',
 		login: 'Login with GitHub',
 		logout: 'Sign out',
 	},
@@ -51,6 +52,16 @@ export const en = {
 			description:
 				'This UUID was generated after a collision — a 1 in 5.3×10³⁶ chance event. The laws of probability have been defied.',
 		},
+		similar: {
+			title: 'Most Similar UUIDs',
+			hint: 'Leading bits are weighted more heavily.',
+			empty: 'No other users registered yet.',
+		},
+	},
+	ranking: {
+		title: 'UUID Similarity Ranking',
+		subtitle: 'The most similar UUID pairs. Leading bits carry more weight.',
+		empty: 'No pairs yet. Be among the first to join!',
 	},
 	auth: {
 		error: 'Authentication failed. Please try again.',
