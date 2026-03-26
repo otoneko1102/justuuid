@@ -1,5 +1,6 @@
 import type { D1Database } from '@cloudflare/workers-types';
-import type { User } from '$lib/types';
+import type { User, SimilarityPair } from '$lib/types';
+import type { PairResult } from '$lib/similarity';
 
 export type UserSort = 'random' | 'newest' | 'oldest';
 
@@ -166,4 +167,76 @@ export async function hasAnyCollision(db: D1Database): Promise<boolean> {
 		.prepare('SELECT COUNT(*) as cnt FROM users WHERE collision_detected = 1')
 		.first<{ cnt: number }>();
 	return (row?.cnt ?? 0) > 0;
+}
+
+/** Fetch all user UUIDs from the database. */
+export async function getAllUserIds(db: D1Database): Promise<string[]> {
+	const { results } = await db
+		.prepare('SELECT id FROM users')
+		.all<{ id: string }>();
+	return results.map((r) => r.id);
+}
+
+/** Fetch users by a list of UUIDs. Order is not guaranteed. */
+export async function getUsersByIds(db: D1Database, ids: string[]): Promise<User[]> {
+	if (ids.length === 0) return [];
+	const placeholders = ids.map(() => '?').join(', ');
+	const { results } = await db
+		.prepare(`SELECT * FROM users WHERE id IN (${placeholders})`)
+		.bind(...ids)
+		.all<Record<string, unknown>>();
+	return results.map(mapRow);
+}
+
+/**
+ * Replace the entire similarity_pairs table with the given pairs.
+ * Uses db.batch() so delete + inserts run as a single transaction.
+ */
+export async function replaceSimilarityPairs(
+	db: D1Database,
+	pairs: PairResult[]
+): Promise<void> {
+	const deleteStmt = db.prepare('DELETE FROM similarity_pairs');
+
+	if (pairs.length === 0) {
+		await deleteStmt.run();
+		return;
+	}
+
+	const insertStmts = pairs.map((p) =>
+		db
+			.prepare('INSERT INTO similarity_pairs (uuid_a, uuid_b, score) VALUES (?, ?, ?)')
+			.bind(p.uuid_a, p.uuid_b, p.score)
+	);
+
+	await db.batch([deleteStmt, ...insertStmts]);
+}
+
+/**
+ * Fetch the top similarity pairs, joined with user data.
+ * Returns at most `limit` rows, sorted by score DESC.
+ */
+export async function getTopSimilarityPairs(
+	db: D1Database,
+	limit = 50
+): Promise<SimilarityPair[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT
+        sp.uuid_a,
+        sp.uuid_b,
+        sp.score,
+        ua.username AS username_a,
+        ua.avatar_url AS avatar_url_a,
+        ub.username AS username_b,
+        ub.avatar_url AS avatar_url_b
+      FROM similarity_pairs sp
+      JOIN users ua ON ua.id = sp.uuid_a
+      JOIN users ub ON ub.id = sp.uuid_b
+      ORDER BY sp.score DESC
+      LIMIT ?`
+		)
+		.bind(limit)
+		.all<SimilarityPair>();
+	return results;
 }

@@ -143,6 +143,34 @@
 				{/if}
 			</button>
 		</div>
+	 <div class="similar-section">
+		<div class="similar-header">
+			<span class="mi mi-sm" style="color: var(--text-subtle)">compare_arrows</span>
+			<span class="similar-title">{T.user.similar.title}</span>
+		</div>
+		{#if data.similarUsers.length === 0}
+			<p class="similar-empty">{T.user.similar.empty}</p>
+		{:else}
+			<ul class="similar-list">
+				{#each data.similarUsers as su}
+					<li class="similar-item">
+						<a href="/u/{su.id}" class="similar-link">
+							<img src={su.avatar_url} alt="@{su.username}" class="similar-avatar" />
+							<div class="similar-info">
+								<span class="similar-username">@{su.username}</span>
+								<span class="uuid mono similar-uuid">{su.id.slice(0, 8)}…</span>
+							</div>
+							<div class="similar-score-wrap">
+								<span class="similar-pct">{(su.score * 100).toFixed(2)}%</span>
+								<div class="similar-bar-bg">
+									<div class="similar-bar-fill" style="width: {(su.score * 100).toFixed(2)}%"></div>
+								</div>
+							</div>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 	</div>
 
 {#if data.user.collision_detected}
@@ -399,6 +427,126 @@
 		align-items: center;
 		gap: var(--space-1);
 	}
+/* Similar UUIDs section */
+	.similar-section {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: var(--space-4) var(--space-5);
+	}
+
+	.similar-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+
+	.similar-title {
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--text-muted);
+	}
+
+	.similar-empty {
+		font-size: 0.875rem;
+		color: var(--text-subtle);
+	}
+
+	.similar-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+
+	.similar-item {
+		border-radius: var(--radius-sm);
+	}
+
+	.similar-link {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-2) var(--space-2);
+		border-radius: var(--radius-sm);
+		transition: background 0.15s ease;
+		text-decoration: none;
+		color: var(--text);
+	}
+
+	.similar-link:hover {
+		background: var(--bg);
+	}
+
+	.similar-avatar {
+		width: 32px;
+		height: 32px;
+		border-radius: var(--radius-full);
+		object-fit: cover;
+		border: 1px solid var(--border);
+		flex-shrink: 0;
+	}
+
+	.similar-info {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+		flex: 1;
+	}
+
+	.similar-username {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--text);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.similar-uuid {
+		font-size: 0.625rem;
+		color: var(--text-subtle);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.similar-score-wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 3px;
+		flex-shrink: 0;
+		min-width: 60px;
+	}
+
+	.similar-pct {
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: var(--accent);
+	}
+
+	.similar-bar-bg {
+		width: 60px;
+		height: 4px;
+		background: var(--border);
+		border-radius: 9999px;
+		overflow: hidden;
+	}
+
+	.similar-bar-fill {
+		height: 100%;
+		background: var(--accent);
+		border-radius: 9999px;
+	}
+
 .cosmic-event {
 		width: 100%;
 		display: flex;
