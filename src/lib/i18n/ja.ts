@@ -45,6 +45,9 @@ export const ja = {
 		yourPage: 'これはあなたのページです。',
 		sharePrompt: 'このURLを共有できます:',
 		ogDescription: '@{username} の恒久的なUUIDは {uuid} です。JustUUIDで発行されました。',
+		badgeLabel: 'GitHub README バッジ',
+		badgeHint: 'GitHub の README に貼り付けてください:',
+		copyBadge: 'バッジコードをコピー',
 		cosmic: {
 			badge: '宇宙的衝突',
 			title: 'UUIDの衝突が検出されました',
