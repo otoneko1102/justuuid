@@ -2,7 +2,8 @@ export const en = {
 	meta: {
 		siteName: 'JustUUID',
 		description: 'Your permanent identity, one UUID at a time.',
-		ogDescription: 'Sign in with GitHub and get your own permanent UUID v4. Your identity, forever.',
+		ogDescription:
+			'Sign in with GitHub and get your own permanent UUID v4. Your identity, forever.',
 	},
 	nav: {
 		home: 'Home',
@@ -30,10 +31,12 @@ export const en = {
 			searchPlaceholder: 'Search by username...',
 			searchResults: '{count} results for "{query}"',
 			noResults: 'No users found for "{query}".',
-			randomHint: 'Showing a random selection. Use search to find specific users.',
+			randomHint:
+				'Showing a random selection. Use search to find specific users.',
 		},
 		cosmic: {
-			banner: 'A UUID v4 collision has been recorded in this system — a 1 in 5.3×10³⁶ event.',
+			banner:
+				'A UUID v4 collision has been recorded in this system — a 1 in 5.3×10³⁶ event.',
 		},
 	},
 	user: {
@@ -45,7 +48,8 @@ export const en = {
 		notFoundDesc: "There's no user with this UUID.",
 		yourPage: 'This is your unique page.',
 		sharePrompt: 'Share this URL with anyone:',
-		ogDescription: '@{username}\'s permanent UUID is {uuid} — assigned on JustUUID.',
+		ogDescription:
+			"@{username}'s permanent UUID is {uuid} — assigned on JustUUID.",
 		badgeLabel: 'GitHub README Badge',
 		badgeHint: 'Paste this into your GitHub README:',
 		copyBadge: 'Copy Badge Code',
@@ -71,7 +75,7 @@ export const en = {
 	},
 	errors: {
 		notFound: '404 — Not Found',
-		notFoundDesc: 'The page you\'re looking for doesn\'t exist.',
+		notFoundDesc: "The page you're looking for doesn't exist.",
 		goHome: 'Go Home',
 	},
 	footer: {
@@ -93,7 +97,7 @@ export const en = {
 			},
 			storage: {
 				title: 'Data Storage',
-				body: 'Your data is stored in Cloudflare\'s infrastructure. Your UUID and associated profile are retained indefinitely to preserve your permanent identifier.',
+				body: "Your data is stored in Cloudflare's infrastructure. Your UUID and associated profile are retained indefinitely to preserve your permanent identifier.",
 			},
 			cookies: {
 				title: 'Cookies',
@@ -101,7 +105,7 @@ export const en = {
 			},
 			thirdParty: {
 				title: 'Third-Party Services',
-				body: 'We use GitHub OAuth for authentication. When you sign in, GitHub\'s privacy policy governs data shared during that process.',
+				body: "We use GitHub OAuth for authentication. When you sign in, GitHub's privacy policy governs data shared during that process.",
 			},
 			deletion: {
 				title: 'Data Deletion',

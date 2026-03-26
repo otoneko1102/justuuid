@@ -29,7 +29,7 @@
 <svelte:head>
 	<title>{T.meta.siteName}</title>
 	<meta name="description" content={T.meta.description} />
-<meta property="og:site_name" content="JustUUID" />
+	<meta property="og:site_name" content="JustUUID" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={`${data.origin}${data.pathname}`} />
 	<meta property="og:locale" content={data.lang === 'ja' ? 'ja_JP' : 'en_US'} />
@@ -37,23 +37,23 @@
 </svelte:head>
 
 <div class="layout">
-<header>
+	<header>
 		<div class="container header-inner">
 			<a href="/" class="logo" onclick={closeMenu}>
 				<span class="logo-text">JustUUID</span>
 			</a>
-<nav class="nav-right nav-desktop">
+			<nav class="nav-right nav-desktop">
 				<div class="lang-switcher" role="group" aria-label="Language">
 					<button
 						class="lang-btn"
 						class:active={data.lang === 'en'}
-						onclick={() => setLang('en')}
-					>EN</button>
+						onclick={() => setLang('en')}>EN</button
+					>
 					<button
 						class="lang-btn"
 						class:active={data.lang === 'ja'}
-						onclick={() => setLang('ja')}
-					>JA</button>
+						onclick={() => setLang('ja')}>JA</button
+					>
 				</div>
 
 				<a href="/ranking" class="btn btn-ghost btn-sm">
@@ -79,17 +79,21 @@
 						<span class="mi mi-sm">logout</span>
 					</a>
 				{:else}
-					<a href="/login" class="btn btn-primary btn-sm" data-sveltekit-preload-data="off">
+					<a
+						href="/login"
+						class="btn btn-primary btn-sm"
+						data-sveltekit-preload-data="off"
+					>
 						<GitHubIcon />
 						{T.nav.login}
 					</a>
 				{/if}
 			</nav>
-<button class="menu-toggle" onclick={toggleMenu} aria-label="Menu">
+			<button class="menu-toggle" onclick={toggleMenu} aria-label="Menu">
 				<span class="mi">{menuOpen ? 'close' : 'menu'}</span>
 			</button>
 		</div>
-{#if menuOpen}
+		{#if menuOpen}
 			<div class="mobile-menu">
 				<div class="container mobile-menu-inner">
 					<div class="mobile-menu-row">
@@ -97,13 +101,19 @@
 							<button
 								class="lang-btn"
 								class:active={data.lang === 'en'}
-								onclick={() => { setLang('en'); closeMenu(); }}
-							>EN</button>
+								onclick={() => {
+									setLang('en');
+									closeMenu();
+								}}>EN</button
+							>
 							<button
 								class="lang-btn"
 								class:active={data.lang === 'ja'}
-								onclick={() => { setLang('ja'); closeMenu(); }}
-							>JA</button>
+								onclick={() => {
+									setLang('ja');
+									closeMenu();
+								}}>JA</button
+							>
 						</div>
 					</div>
 
@@ -113,7 +123,11 @@
 					</a>
 
 					{#if data.user}
-						<a href="/u/{data.user.id}" class="mobile-menu-link" onclick={closeMenu}>
+						<a
+							href="/u/{data.user.id}"
+							class="mobile-menu-link"
+							onclick={closeMenu}
+						>
 							<img
 								src={data.user.avatar_url}
 								alt={data.user.username}
@@ -131,7 +145,12 @@
 							<span>{T.nav.logout}</span>
 						</a>
 					{:else}
-						<a href="/login" class="mobile-menu-link" data-sveltekit-preload-data="off" onclick={closeMenu}>
+						<a
+							href="/login"
+							class="mobile-menu-link"
+							data-sveltekit-preload-data="off"
+							onclick={closeMenu}
+						>
 							<GitHubIcon />
 							<span>{T.nav.login}</span>
 						</a>
@@ -140,18 +159,18 @@
 			</div>
 		{/if}
 	</header>
-<main>
+	<main>
 		{@render children()}
 	</main>
-<footer>
+	<footer>
 		<div class="container footer-inner">
 			<span class="footer-tagline mono">{T.footer.tagline}</span>
 			<div class="footer-links">
 				<a
 					href="https://github.com/otoneko1102/justuuid"
 					target="_blank"
-					rel="noreferrer"
-				>GitHub</a>
+					rel="noreferrer">GitHub</a
+				>
 				<a href="/privacy-policy">{T.footer.privacyPolicy}</a>
 				<a href="/terms-of-service">{T.footer.termsOfService}</a>
 			</div>
@@ -165,7 +184,7 @@
 		flex-direction: column;
 		min-height: 100dvh;
 	}
-header {
+	header {
 		position: sticky;
 		top: 0;
 		z-index: 50;
@@ -244,7 +263,7 @@ header {
 	.icon-only {
 		padding-inline: var(--space-2);
 	}
-.menu-toggle {
+	.menu-toggle {
 		display: none;
 		align-items: center;
 		justify-content: center;
@@ -268,8 +287,14 @@ header {
 	}
 
 	@keyframes slideDown {
-		from { opacity: 0; transform: translateY(-4px); }
-		to { opacity: 1; transform: translateY(0); }
+		from {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.mobile-menu-inner {
@@ -300,10 +325,10 @@ header {
 		color: var(--text);
 		background: var(--surface);
 	}
-main {
+	main {
 		flex: 1;
 	}
-footer {
+	footer {
 		border-top: 1px solid var(--border);
 		padding-block: var(--space-6);
 		margin-top: var(--space-16);
@@ -336,7 +361,7 @@ footer {
 	.footer-links a:hover {
 		color: var(--text);
 	}
-@media (max-width: 600px) {
+	@media (max-width: 600px) {
 		.nav-desktop {
 			display: none;
 		}

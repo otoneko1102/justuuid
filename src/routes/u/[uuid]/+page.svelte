@@ -11,10 +11,12 @@
 	let copiedBadge = $state(false);
 	const shareUrl = $derived(`${data.origin}/u/${data.user.id}`);
 	const badgeSnippet = $derived(
-		`<a href="${data.origin}/u/${data.user.id}" target="_blank" rel="noopener noreferrer">\n  <img src="${data.origin}/api/badge/u/${data.user.id}.svg" alt="UUID Badge" />\n</a>`
+		`<a href="${data.origin}/u/${data.user.id}" target="_blank" rel="noopener noreferrer">\n  <img src="${data.origin}/api/badge/u/${data.user.id}.svg" alt="UUID Badge" />\n</a>`,
 	);
 	const ogDesc = $derived(
-		T.user.ogDescription.replace('{username}', data.user.username).replace('{uuid}', data.user.id)
+		T.user.ogDescription
+			.replace('{username}', data.user.username)
+			.replace('{uuid}', data.user.id),
 	);
 
 	async function copyUuid() {
@@ -59,7 +61,7 @@
 </svelte:head>
 
 <div class="profile-page container">
-{#if data.isOwner}
+	{#if data.isOwner}
 		<div class="owner-banner">
 			<span class="mi mi-sm banner-icon">info</span>
 			<div class="owner-banner-content">
@@ -81,7 +83,11 @@
 					<span class="share-label">{T.user.badgeHint}</span>
 					<div class="badge-snippet-row">
 						<pre class="mono badge-snippet">{badgeSnippet}</pre>
-						<button class="btn-copy" onclick={copyBadge} title={T.user.copyBadge}>
+						<button
+							class="btn-copy"
+							onclick={copyBadge}
+							title={T.user.copyBadge}
+						>
 							{#if copiedBadge}
 								<span class="mi mi-sm">check</span>
 							{:else}
@@ -93,8 +99,9 @@
 			</div>
 		</div>
 	{/if}
-<div class="profile-card" class:cosmic-profile={data.user.collision_detected}>
-<div class="avatar-wrap">
+
+	<div class="profile-card" class:cosmic-profile={data.user.collision_detected}>
+		<div class="avatar-wrap">
 			<img
 				src={data.user.avatar_url}
 				alt="@{data.user.username}"
@@ -104,12 +111,23 @@
 				<div class="cosmic-ring" aria-hidden="true"></div>
 			{/if}
 		</div>
-<h1 class="username"><a href={"https://github.com/" + data.user.username} target="_blank">@{data.user.username}</a></h1>
-<div class="uuid-block">
+
+		<h1 class="username">
+			<a
+				href={'https://github.com/' + data.user.username}
+				target="_blank"
+				rel="noreferrer"
+			>
+				@{data.user.username}
+			</a>
+		</h1>
+
+		<div class="uuid-block">
 			<p class="uuid-label">UUID</p>
 			<p class="uuid mono">{data.user.id}</p>
 		</div>
-<div class="actions">
+
+		<div class="actions">
 			<button class="btn btn-primary" onclick={copyUuid}>
 				{#if copied}
 					<span class="mi mi-sm">check</span>
@@ -120,18 +138,26 @@
 				{/if}
 			</button>
 		</div>
-<p class="member-since">
-			<span class="mi mi-sm" style="color: var(--text-subtle)">calendar_today</span>
-			{T.user.memberSince} {formatDate(data.user.created_at, data.lang)}
+
+		<p class="member-since">
+			<span class="mi mi-sm" style="color: var(--text-subtle)"
+				>calendar_today</span
+			>
+			{T.user.memberSince}
+			{formatDate(data.user.created_at, data.lang)}
 		</p>
 	</div>
+
 	<div class="badge-section">
 		<div class="badge-section-header">
 			<span class="mi mi-sm" style="color: var(--text-subtle)">code</span>
 			<span class="badge-section-title">{T.user.badgeLabel}</span>
 		</div>
 		<div class="badge-preview">
-			<img src="{data.origin}/api/badge/u/{data.user.id}.svg" alt="UUID Badge" />
+			<img
+				src={`${data.origin}/api/badge/u/${data.user.id}.svg`}
+				alt="UUID Badge"
+			/>
 		</div>
 		<div class="badge-snippet-row">
 			<pre class="mono badge-snippet">{badgeSnippet}</pre>
@@ -143,9 +169,13 @@
 				{/if}
 			</button>
 		</div>
-	 <div class="similar-section">
+	</div>
+
+	<div class="similar-section">
 		<div class="similar-header">
-			<span class="mi mi-sm" style="color: var(--text-subtle)">compare_arrows</span>
+			<span class="mi mi-sm" style="color: var(--text-subtle)"
+				>compare_arrows</span
+			>
 			<span class="similar-title">{T.user.similar.title}</span>
 		</div>
 		{#if data.similarUsers.length === 0}
@@ -155,15 +185,24 @@
 				{#each data.similarUsers as su}
 					<li class="similar-item">
 						<a href="/u/{su.id}" class="similar-link">
-							<img src={su.avatar_url} alt="@{su.username}" class="similar-avatar" />
+							<img
+								src={su.avatar_url}
+								alt="@{su.username}"
+								class="similar-avatar"
+							/>
 							<div class="similar-info">
 								<span class="similar-username">@{su.username}</span>
-								<span class="uuid mono similar-uuid">{su.id.slice(0, 8)}…</span>
+								<span class="uuid mono similar-uuid"
+									>{su.id.slice(0, 8)}...</span
+								>
 							</div>
 							<div class="similar-score-wrap">
 								<span class="similar-pct">{(su.score * 100).toFixed(2)}%</span>
 								<div class="similar-bar-bg">
-									<div class="similar-bar-fill" style="width: {(su.score * 100).toFixed(2)}%"></div>
+									<div
+										class="similar-bar-fill"
+										style="width: {(su.score * 100).toFixed(2)}%"
+									></div>
 								</div>
 							</div>
 						</a>
@@ -173,7 +212,7 @@
 		{/if}
 	</div>
 
-{#if data.user.collision_detected}
+	{#if data.user.collision_detected}
 		<div class="cosmic-event">
 			<span class="mi mi-lg cosmic-icon">casino</span>
 			<div class="cosmic-event-content">
@@ -182,7 +221,6 @@
 			</div>
 		</div>
 	{/if}
-
 </div>
 
 <style>
@@ -194,7 +232,8 @@
 		gap: var(--space-6);
 		max-width: 560px;
 	}
-.owner-banner {
+
+	.owner-banner {
 		width: 100%;
 		display: flex;
 		align-items: flex-start;
@@ -331,7 +370,8 @@
 	.badge-preview img {
 		height: 20px;
 	}
-.profile-card {
+
+	.profile-card {
 		width: 100%;
 		background: var(--surface);
 		border: 1px solid var(--border);
@@ -352,7 +392,8 @@
 			var(--surface) 40%
 		);
 	}
-.avatar-wrap {
+
+	.avatar-wrap {
 		position: relative;
 		width: 100px;
 		height: 100px;
@@ -372,22 +413,30 @@
 		border-radius: var(--radius-full);
 		border: 2px solid transparent;
 		background: linear-gradient(135deg, var(--cosmic), var(--accent)) border-box;
-		-webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+		-webkit-mask:
+			linear-gradient(#fff 0 0) padding-box,
+			linear-gradient(#fff 0 0);
 		-webkit-mask-composite: destination-out;
-		mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+		mask:
+			linear-gradient(#fff 0 0) padding-box,
+			linear-gradient(#fff 0 0);
 		mask-composite: exclude;
 		animation: spin 4s linear infinite;
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
-.username {
+
+	.username {
 		font-size: 1.625rem;
 		font-weight: 700;
 		letter-spacing: -0.02em;
 	}
-.uuid-block {
+
+	.uuid-block {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -416,18 +465,20 @@
 		line-height: 1.6;
 		text-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
 	}
-.actions {
+
+	.actions {
 		display: flex;
 		gap: var(--space-3);
 	}
-.member-since {
+
+	.member-since {
 		font-size: 0.8125rem;
 		color: var(--text-subtle);
 		display: flex;
 		align-items: center;
 		gap: var(--space-1);
 	}
-/* Similar UUIDs section */
+
 	.similar-section {
 		width: 100%;
 		display: flex;
@@ -547,7 +598,7 @@
 		border-radius: 9999px;
 	}
 
-.cosmic-event {
+	.cosmic-event {
 		width: 100%;
 		display: flex;
 		gap: var(--space-4);
@@ -591,7 +642,8 @@
 			padding: var(--space-3);
 		}
 
-		.avatar-wrap, .avatar {
+		.avatar-wrap,
+		.avatar {
 			width: 80px;
 			height: 80px;
 		}

@@ -13,33 +13,33 @@
 				sections: [
 					{
 						title: '本サービスについて',
-						body: 'JustUUID は、GitHub アカウントに恒久的な UUID v4 を割り当て、その識別子を公開 URL で表示するサービスです。'
+						body: 'JustUUID は、GitHub アカウントに恒久的な UUID v4 を割り当て、その識別子を公開 URL で表示するサービスです。',
 					},
 					{
 						title: '利用条件',
-						body: '本サービスは適法な目的にのみ利用できます。過剰な負荷、不正アクセス、なりすまし、妨害行為は禁止です。'
+						body: '本サービスは適法な目的にのみ利用できます。過剰な負荷、不正アクセス、なりすまし、妨害行為は禁止です。',
 					},
 					{
 						title: '公開プロフィール',
-						body: 'プロフィールページは公開されます。サービスを通じて表示される情報が公開状態になることを理解したうえで利用してください。'
+						body: 'プロフィールページは公開されます。サービスを通じて表示される情報が公開状態になることを理解したうえで利用してください。',
 					},
 					{
 						title: '提供状況',
-						body: '本サービスは無償で提供されており、事前の通知なく変更、中断、終了されることがあります。稼働率や長期的な提供は保証しません。'
+						body: '本サービスは無償で提供されており、事前の通知なく変更、中断、終了されることがあります。稼働率や長期的な提供は保証しません。',
 					},
 					{
 						title: 'UUIDの恒久性',
-						body: 'UUID は発行を受けた GitHub アカウントに恒久的に結び付けられ、別ユーザーへ再割り当てされることはありません。ただし、サービス自体の永続提供を保証するものではありません。'
+						body: 'UUID は発行を受けた GitHub アカウントに恒久的に結び付けられ、別ユーザーへ再割り当てされることはありません。ただし、サービス自体の永続提供を保証するものではありません。',
 					},
 					{
 						title: '公開ソースコードと権利',
-						body: '本サービスのソースコードは公開リポジトリで公開されています。コードの利用、複製、改変、再配布は、そのリポジトリのライセンスに従います。ただし、非公式のデプロイを公式の JustUUID サービスとして偽ることは禁止します。'
+						body: '本サービスのソースコードは公開リポジトリで公開されています。コードの利用、複製、改変、再配布は、そのリポジトリのライセンスに従います。ただし、非公式のデプロイを公式の JustUUID サービスとして偽ることは禁止します。',
 					},
 					{
 						title: '免責事項',
-						body: '本サービスは現状有姿で提供され、いかなる保証も行いません。本サービスの利用によって生じた損害について、運営者は責任を負いません。'
-					}
-				] satisfies Section[]
+						body: '本サービスは現状有姿で提供され、いかなる保証も行いません。本サービスの利用によって生じた損害について、運営者は責任を負いません。',
+					},
+				] satisfies Section[],
 			};
 		}
 
@@ -49,33 +49,33 @@
 			sections: [
 				{
 					title: 'The Service',
-					body: 'JustUUID assigns a permanent UUID v4 to a GitHub account and exposes that identity through a public URL.'
+					body: 'JustUUID assigns a permanent UUID v4 to a GitHub account and exposes that identity through a public URL.',
 				},
 				{
 					title: 'Acceptable Use',
-					body: 'You may use this service only for lawful purposes. You may not abuse, overload, disrupt, impersonate others, or attempt unauthorized access to the service or its infrastructure.'
+					body: 'You may use this service only for lawful purposes. You may not abuse, overload, disrupt, impersonate others, or attempt unauthorized access to the service or its infrastructure.',
 				},
 				{
 					title: 'Public Profiles',
-					body: 'Profile pages are public. You are responsible for understanding that the profile information exposed by the service is publicly accessible.'
+					body: 'Profile pages are public. You are responsible for understanding that the profile information exposed by the service is publicly accessible.',
 				},
 				{
 					title: 'Availability',
-					body: 'The service is provided free of charge and may change, be interrupted, or be discontinued at any time. We do not guarantee uptime or long-term availability.'
+					body: 'The service is provided free of charge and may change, be interrupted, or be discontinued at any time. We do not guarantee uptime or long-term availability.',
 				},
 				{
 					title: 'UUID Permanence',
-					body: 'A UUID is permanently linked to the GitHub account that received it and will not be reassigned to another user. This does not guarantee that the service itself will exist forever.'
+					body: 'A UUID is permanently linked to the GitHub account that received it and will not be reassigned to another user. This does not guarantee that the service itself will exist forever.',
 				},
 				{
 					title: 'Public Source Code and Rights',
-					body: 'The source code for this service is available in a public repository. Use, copying, modification, and redistribution of that code are governed by the repository license. However, you may not misrepresent an unofficial deployment as the official JustUUID service.'
+					body: 'The source code for this service is available in a public repository. Use, copying, modification, and redistribution of that code are governed by the repository license. However, you may not misrepresent an unofficial deployment as the official JustUUID service.',
 				},
 				{
 					title: 'Disclaimer',
-					body: 'The service is provided "as is" without warranties of any kind. The operator is not liable for damages resulting from use of the service.'
-				}
-			] satisfies Section[]
+					body: 'The service is provided "as is" without warranties of any kind. The operator is not liable for damages resulting from use of the service.',
+				},
+			] satisfies Section[],
 		};
 	});
 </script>

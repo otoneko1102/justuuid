@@ -18,7 +18,11 @@ function escapeXml(text: string): string {
 		.replaceAll("'", '&#39;');
 }
 
-function renderBadge(label: string, message: string, valueColor: string): string {
+function renderBadge(
+	label: string,
+	message: string,
+	valueColor: string,
+): string {
 	const safeLabel = escapeXml(label);
 	const safeMessage = escapeXml(message);
 	const labelWidth = calcWidth(label);
@@ -47,21 +51,22 @@ function renderBadge(label: string, message: string, valueColor: string): string
 		`<text x="${valueCenter}" y="15" fill="#010101" fill-opacity=".3">${safeMessage}</text>`,
 		`<text x="${valueCenter}" y="14">${safeMessage}</text>`,
 		'</g>',
-		'</svg>'
+		'</svg>',
 	].join('');
 }
 
 export const GET: RequestHandler = async ({ platform, params }) => {
 	const db = platform?.env?.DB;
-	const cacheHeader = 'public, max-age=300, s-maxage=300, stale-while-revalidate=300';
+	const cacheHeader =
+		'public, max-age=300, s-maxage=300, stale-while-revalidate=300';
 
 	if (!db) {
 		return new Response(renderBadge('uuid', 'n/a', '#9f9f9f'), {
 			status: 503,
 			headers: {
 				'content-type': 'image/svg+xml; charset=utf-8',
-				'cache-control': cacheHeader
-			}
+				'cache-control': cacheHeader,
+			},
 		});
 	}
 
@@ -71,8 +76,8 @@ export const GET: RequestHandler = async ({ platform, params }) => {
 			status: 400,
 			headers: {
 				'content-type': 'image/svg+xml; charset=utf-8',
-				'cache-control': cacheHeader
-			}
+				'cache-control': cacheHeader,
+			},
 		});
 	}
 
@@ -84,24 +89,27 @@ export const GET: RequestHandler = async ({ platform, params }) => {
 				status: 404,
 				headers: {
 					'content-type': 'image/svg+xml; charset=utf-8',
-					'cache-control': cacheHeader
-				}
+					'cache-control': cacheHeader,
+				},
 			});
 		}
 
-		return new Response(renderBadge(`${user.username}'s uuid`, user.id, '#4c1'), {
-			headers: {
-				'content-type': 'image/svg+xml; charset=utf-8',
-				'cache-control': cacheHeader
-			}
-		});
+		return new Response(
+			renderBadge(`${user.username}'s uuid`, user.id, '#4c1'),
+			{
+				headers: {
+					'content-type': 'image/svg+xml; charset=utf-8',
+					'cache-control': cacheHeader,
+				},
+			},
+		);
 	} catch {
 		return new Response(renderBadge('uuid', 'n/a', '#9f9f9f'), {
 			status: 503,
 			headers: {
 				'content-type': 'image/svg+xml; charset=utf-8',
-				'cache-control': cacheHeader
-			}
+				'cache-control': cacheHeader,
+			},
 		});
 	}
 };

@@ -8,10 +8,10 @@ const config = {
 		adapter: adapter({
 			routes: {
 				include: ['/*'],
-				exclude: ['<all>']
-			}
-		})
-	}
+				exclude: ['<all>'],
+			},
+		}),
+	},
 };
 
 export default config;

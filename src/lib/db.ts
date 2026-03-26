@@ -16,7 +16,10 @@ function mapRow(row: Record<string, unknown>): User {
 }
 
 /** Fetch user by UUID. Returns null if not found. */
-export async function getUserById(db: D1Database, id: string): Promise<User | null> {
+export async function getUserById(
+	db: D1Database,
+	id: string,
+): Promise<User | null> {
 	const row = await db
 		.prepare('SELECT * FROM users WHERE id = ?')
 		.bind(id)
@@ -25,7 +28,10 @@ export async function getUserById(db: D1Database, id: string): Promise<User | nu
 }
 
 /** Fetch user by GitHub ID. Returns null if not found. */
-export async function getUserByGithubId(db: D1Database, githubId: number): Promise<User | null> {
+export async function getUserByGithubId(
+	db: D1Database,
+	githubId: number,
+): Promise<User | null> {
 	const row = await db
 		.prepare('SELECT * FROM users WHERE github_id = ?')
 		.bind(githubId)
@@ -34,7 +40,10 @@ export async function getUserByGithubId(db: D1Database, githubId: number): Promi
 }
 
 /** Fetch user by GitHub username (case-insensitive exact match). Returns null if not found. */
-export async function getUserByUsername(db: D1Database, username: string): Promise<User | null> {
+export async function getUserByUsername(
+	db: D1Database,
+	username: string,
+): Promise<User | null> {
 	const normalizedUsername = username.trim();
 
 	if (!normalizedUsername) {
@@ -53,7 +62,7 @@ export async function createUser(
 	db: D1Database,
 	githubId: number,
 	username: string,
-	avatarUrl: string
+	avatarUrl: string,
 ): Promise<User> {
 	let collisionDetected = false;
 	let uuid: string;
@@ -73,7 +82,7 @@ export async function createUser(
 
 	await db
 		.prepare(
-			'INSERT INTO users (id, github_id, username, avatar_url, collision_detected) VALUES (?, ?, ?, ?, ?)'
+			'INSERT INTO users (id, github_id, username, avatar_url, collision_detected) VALUES (?, ?, ?, ?, ?)',
 		)
 		.bind(uuid!, githubId, username, avatarUrl, collisionDetected ? 1 : 0)
 		.run();
@@ -93,10 +102,12 @@ export async function updateUser(
 	db: D1Database,
 	githubId: number,
 	username: string,
-	avatarUrl: string
+	avatarUrl: string,
 ): Promise<void> {
 	await db
-		.prepare('UPDATE users SET username = ?, avatar_url = ? WHERE github_id = ?')
+		.prepare(
+			'UPDATE users SET username = ?, avatar_url = ? WHERE github_id = ?',
+		)
 		.bind(username, avatarUrl, githubId)
 		.run();
 }
@@ -118,12 +129,14 @@ export async function listUsers(
 	limit = 12,
 	sort: UserSort = 'random',
 	offset = 0,
-	excludeIds: string[] = []
+	excludeIds: string[] = [],
 ): Promise<User[]> {
 	if (sort === 'random' && excludeIds.length > 0) {
 		const placeholders = excludeIds.map(() => '?').join(', ');
 		const { results } = await db
-			.prepare(`SELECT * FROM users WHERE id NOT IN (${placeholders}) ORDER BY RANDOM() LIMIT ?`)
+			.prepare(
+				`SELECT * FROM users WHERE id NOT IN (${placeholders}) ORDER BY RANDOM() LIMIT ?`,
+			)
 			.bind(...excludeIds, limit)
 			.all<Record<string, unknown>>();
 		return results.map(mapRow);
@@ -143,11 +156,13 @@ export async function searchUsers(
 	query: string,
 	limit = 30,
 	sort: UserSort = 'random',
-	offset = 0
+	offset = 0,
 ): Promise<User[]> {
 	const orderBy = getUserSortOrder(sort);
 	const { results } = await db
-		.prepare(`SELECT * FROM users WHERE username LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`)
+		.prepare(
+			`SELECT * FROM users WHERE username LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+		)
 		.bind(`%${query}%`, limit, offset)
 		.all<Record<string, unknown>>();
 	return results.map(mapRow);
@@ -178,7 +193,10 @@ export async function getAllUserIds(db: D1Database): Promise<string[]> {
 }
 
 /** Fetch users by a list of UUIDs. Order is not guaranteed. */
-export async function getUsersByIds(db: D1Database, ids: string[]): Promise<User[]> {
+export async function getUsersByIds(
+	db: D1Database,
+	ids: string[],
+): Promise<User[]> {
 	if (ids.length === 0) return [];
 	const placeholders = ids.map(() => '?').join(', ');
 	const { results } = await db
@@ -194,7 +212,7 @@ export async function getUsersByIds(db: D1Database, ids: string[]): Promise<User
  */
 export async function replaceSimilarityPairs(
 	db: D1Database,
-	pairs: PairResult[]
+	pairs: PairResult[],
 ): Promise<void> {
 	const deleteStmt = db.prepare('DELETE FROM similarity_pairs');
 
@@ -205,8 +223,10 @@ export async function replaceSimilarityPairs(
 
 	const insertStmts = pairs.map((p) =>
 		db
-			.prepare('INSERT INTO similarity_pairs (uuid_a, uuid_b, score) VALUES (?, ?, ?)')
-			.bind(p.uuid_a, p.uuid_b, p.score)
+			.prepare(
+				'INSERT INTO similarity_pairs (uuid_a, uuid_b, score) VALUES (?, ?, ?)',
+			)
+			.bind(p.uuid_a, p.uuid_b, p.score),
 	);
 
 	await db.batch([deleteStmt, ...insertStmts]);
@@ -218,7 +238,7 @@ export async function replaceSimilarityPairs(
  */
 export async function getTopSimilarityPairs(
 	db: D1Database,
-	limit = 50
+	limit = 50,
 ): Promise<SimilarityPair[]> {
 	const { results } = await db
 		.prepare(
@@ -234,7 +254,7 @@ export async function getTopSimilarityPairs(
       JOIN users ua ON ua.id = sp.uuid_a
       JOIN users ub ON ub.id = sp.uuid_b
       ORDER BY sp.score DESC
-      LIMIT ?`
+      LIMIT ?`,
 		)
 		.bind(limit)
 		.all<SimilarityPair>();

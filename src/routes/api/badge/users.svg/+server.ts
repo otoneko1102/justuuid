@@ -37,21 +37,22 @@ function renderBadge(message: string, valueColor: string): string {
 		`<text x="${valueCenter}" y="15" fill="#010101" fill-opacity=".3">${message}</text>`,
 		`<text x="${valueCenter}" y="14">${message}</text>`,
 		'</g>',
-		'</svg>'
+		'</svg>',
 	].join('');
 }
 
 export const GET: RequestHandler = async ({ platform }) => {
 	const db = platform?.env?.DB;
-	const cacheHeader = 'public, max-age=300, s-maxage=300, stale-while-revalidate=300';
+	const cacheHeader =
+		'public, max-age=300, s-maxage=300, stale-while-revalidate=300';
 
 	if (!db) {
 		return new Response(renderBadge('n/a', '#9f9f9f'), {
 			status: 503,
 			headers: {
 				'content-type': 'image/svg+xml; charset=utf-8',
-				'cache-control': cacheHeader
-			}
+				'cache-control': cacheHeader,
+			},
 		});
 	}
 
@@ -62,16 +63,16 @@ export const GET: RequestHandler = async ({ platform }) => {
 		return new Response(renderBadge(value, '#4c1'), {
 			headers: {
 				'content-type': 'image/svg+xml; charset=utf-8',
-				'cache-control': cacheHeader
-			}
+				'cache-control': cacheHeader,
+			},
 		});
 	} catch {
 		return new Response(renderBadge('n/a', '#9f9f9f'), {
 			status: 503,
 			headers: {
 				'content-type': 'image/svg+xml; charset=utf-8',
-				'cache-control': cacheHeader
-			}
+				'cache-control': cacheHeader,
+			},
 		});
 	}
 };

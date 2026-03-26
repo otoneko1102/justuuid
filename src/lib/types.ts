@@ -1,5 +1,5 @@
 export interface User {
-	id: string;          // UUID v4
+	id: string; // UUID v4
 	github_id: number;
 	username: string;
 	avatar_url: string;
@@ -24,10 +24,10 @@ export interface SimilarityPair {
 export type Lang = 'en' | 'ja';
 
 export interface JWTPayload {
-	sub: string;       // user UUID
-	gid: number;       // github_id
-	usr: string;       // username
-	avt: string;       // avatar_url
+	sub: string; // user UUID
+	gid: number; // github_id
+	usr: string; // username
+	avt: string; // avatar_url
 	iat: number;
 	exp: number;
 }

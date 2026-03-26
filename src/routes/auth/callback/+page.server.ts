@@ -1,11 +1,19 @@
 import { redirect, isRedirect, isHttpError } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { signJWT } from '$lib/auth';
-import { getUserByGithubId, createUser, updateUser, getAllUserIds, replaceSimilarityPairs } from '$lib/db';
+import {
+	getUserByGithubId,
+	createUser,
+	updateUser,
+	getAllUserIds,
+	replaceSimilarityPairs,
+} from '$lib/db';
 import { topPairs } from '$lib/similarity';
 
 /** Fire-and-forget: recompute the global similarity ranking. Never throws. */
-async function refreshGlobalSimilarityPairs(db: Parameters<typeof getAllUserIds>[0]): Promise<void> {
+async function refreshGlobalSimilarityPairs(
+	db: Parameters<typeof getAllUserIds>[0],
+): Promise<void> {
 	const allIds = await getAllUserIds(db);
 	const pairs = topPairs(allIds, 100);
 	await replaceSimilarityPairs(db, pairs);
@@ -17,7 +25,12 @@ interface GitHubUser {
 	avatar_url: string;
 }
 
-export const load: PageServerLoad = async ({ url, cookies, platform, locals }) => {
+export const load: PageServerLoad = async ({
+	url,
+	cookies,
+	platform,
+	locals,
+}) => {
 	// Already logged in
 	if (locals.user) {
 		redirect(302, `/u/${locals.user.id}`);
@@ -36,30 +49,41 @@ export const load: PageServerLoad = async ({ url, cookies, platform, locals }) =
 	cookies.delete('oauth_state', { path: '/' });
 
 	const env = platform?.env;
-	if (!env?.GITHUB_CLIENT_ID || !env?.GITHUB_CLIENT_SECRET || !env?.JWT_SECRET || !env?.DB) {
+	if (
+		!env?.GITHUB_CLIENT_ID ||
+		!env?.GITHUB_CLIENT_SECRET ||
+		!env?.JWT_SECRET ||
+		!env?.DB
+	) {
 		redirect(302, '/?error=config');
 	}
 
 	try {
 		// Exchange code for access token
-		const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json',
+		const tokenRes = await fetch(
+			'https://github.com/login/oauth/access_token',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify({
+					client_id: env.GITHUB_CLIENT_ID,
+					client_secret: env.GITHUB_CLIENT_SECRET,
+					code,
+				}),
 			},
-			body: JSON.stringify({
-				client_id: env.GITHUB_CLIENT_ID,
-				client_secret: env.GITHUB_CLIENT_SECRET,
-				code,
-			}),
-		});
+		);
 
 		if (!tokenRes.ok) {
 			redirect(302, '/?error=token');
 		}
 
-		const tokenData = (await tokenRes.json()) as { access_token?: string; error?: string };
+		const tokenData = (await tokenRes.json()) as {
+			access_token?: string;
+			error?: string;
+		};
 		if (!tokenData.access_token) {
 			redirect(302, '/?error=token');
 		}
@@ -82,12 +106,22 @@ export const load: PageServerLoad = async ({ url, cookies, platform, locals }) =
 		let dbUser = await getUserByGithubId(env.DB, githubUser.id);
 
 		if (!dbUser) {
-			dbUser = await createUser(env.DB, githubUser.id, githubUser.login, githubUser.avatar_url);
+			dbUser = await createUser(
+				env.DB,
+				githubUser.id,
+				githubUser.login,
+				githubUser.avatar_url,
+			);
 			// Fire-and-forget: refresh global ranking on new user signup. Never blocks login.
 			refreshGlobalSimilarityPairs(env.DB).catch(() => {});
 		} else {
 			// Update profile info in case they changed their GitHub name/avatar
-			await updateUser(env.DB, githubUser.id, githubUser.login, githubUser.avatar_url);
+			await updateUser(
+				env.DB,
+				githubUser.id,
+				githubUser.login,
+				githubUser.avatar_url,
+			);
 			dbUser.username = githubUser.login;
 			dbUser.avatar_url = githubUser.avatar_url;
 		}
@@ -100,7 +134,7 @@ export const load: PageServerLoad = async ({ url, cookies, platform, locals }) =
 				usr: dbUser.username,
 				avt: dbUser.avatar_url,
 			},
-			env.JWT_SECRET
+			env.JWT_SECRET,
 		);
 
 		cookies.set('session', token, {

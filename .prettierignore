@@ -1,0 +1,6 @@
+.svelte-kit/
+.wrangler/
+node_modules/
+dist/
+build/
+*.json

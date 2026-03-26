@@ -21,7 +21,9 @@
 			return null;
 		}
 
-		const username = homeData.lookupUsername ? `@${homeData.lookupUsername}` : null;
+		const username = homeData.lookupUsername
+			? `@${homeData.lookupUsername}`
+			: null;
 
 		if (data.lang === 'ja') {
 			return username
@@ -33,23 +35,25 @@
 			? `${username} is not registered on JustUUID.`
 			: 'The requested GitHub user was not found on JustUUID.';
 	});
-	const showMoreLabel = $derived(data.lang === 'ja' ? 'もっと表示' : 'Load more');
+	const showMoreLabel = $derived(
+		data.lang === 'ja' ? 'もっと表示' : 'Load more',
+	);
 	const sortOptions = $derived(
 		data.lang === 'ja'
 			? [
 					{ value: 'random' as UserSort, label: 'ランダム' },
 					{ value: 'newest' as UserSort, label: '新しい順' },
-					{ value: 'oldest' as UserSort, label: '古い順' }
+					{ value: 'oldest' as UserSort, label: '古い順' },
 				]
 			: [
 					{ value: 'random' as UserSort, label: 'Random' },
 					{ value: 'newest' as UserSort, label: 'Newest' },
-					{ value: 'oldest' as UserSort, label: 'Oldest' }
-				]
+					{ value: 'oldest' as UserSort, label: 'Oldest' },
+				],
 	);
 
-	let searchInput = $state(data.query);
-	let visibleUsers = $state<User[]>(data.users);
+	let searchInput = $state('');
+	let visibleUsers = $state<User[]>([]);
 	let currentSort = $state<UserSort>('random');
 	let isLoadingMore = $state(false);
 	let isSorting = $state(false);
@@ -66,7 +70,7 @@
 		sort = currentSort,
 		offset = 0,
 		limit = visibleUsers.length || 6,
-		excludeIds = []
+		excludeIds = [],
 	}: {
 		sort?: UserSort;
 		offset?: number;
@@ -76,14 +80,14 @@
 		const response = await fetch('/api/users', {
 			method: 'POST',
 			headers: {
-				'content-type': 'application/json'
+				'content-type': 'application/json',
 			},
 			body: JSON.stringify({
 				sort,
 				offset,
 				limit,
-				excludeIds
-			})
+				excludeIds,
+			}),
 		});
 
 		if (!response.ok) {
@@ -107,7 +111,7 @@
 			visibleUsers = await fetchUsers({
 				sort,
 				offset: 0,
-				limit: Math.max(visibleUsers.length, 6)
+				limit: Math.max(visibleUsers.length, 6),
 			});
 		} catch {
 			currentSort = previousSort;
@@ -117,7 +121,12 @@
 	}
 
 	async function loadMoreUsers() {
-		if (isLoadingMore || isSorting || data.query || visibleUsers.length >= data.totalCount) {
+		if (
+			isLoadingMore ||
+			isSorting ||
+			data.query ||
+			visibleUsers.length >= data.totalCount
+		) {
 			return;
 		}
 
@@ -128,10 +137,14 @@
 				sort: currentSort,
 				offset: currentSort === 'random' ? 0 : visibleUsers.length,
 				limit: 12,
-				excludeIds: currentSort === 'random' ? visibleUsers.map((user) => user.id) : []
+				excludeIds:
+					currentSort === 'random' ? visibleUsers.map((user) => user.id) : [],
 			});
 			const existingIds = new Set(visibleUsers.map((user) => user.id));
-			visibleUsers = [...visibleUsers, ...nextUsers.filter((user) => !existingIds.has(user.id))];
+			visibleUsers = [
+				...visibleUsers,
+				...nextUsers.filter((user) => !existingIds.has(user.id)),
+			];
 		} finally {
 			isLoadingMore = false;
 		}
@@ -152,7 +165,7 @@
 		return new Date(iso).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', {
 			year: 'numeric',
 			month: 'short',
-			day: 'numeric'
+			day: 'numeric',
 		});
 	}
 
@@ -180,9 +193,10 @@
 			for (let n = 0; n < count; n++) {
 				const idx = positions[Math.floor(Math.random() * positions.length)];
 				const c = TEMPLATE[idx];
-				next[idx] = c === 'y'
-					? HEX[Math.floor(Math.random() * 4) + 8]
-					: HEX[Math.floor(Math.random() * 16)];
+				next[idx] =
+					c === 'y'
+						? HEX[Math.floor(Math.random() * 4) + 8]
+						: HEX[Math.floor(Math.random() * 16)];
 			}
 			animatedChars = next;
 		}, 80);
@@ -209,7 +223,11 @@
 		<p class="hero-subtitle">{T.home.hero.subtitle}</p>
 
 		{#if !data.user}
-			<a href="/login" class="btn btn-primary btn-lg hero-cta" data-sveltekit-preload-data="off">
+			<a
+				href="/login"
+				class="btn btn-primary btn-lg hero-cta"
+				data-sveltekit-preload-data="off"
+			>
 				<GitHubIcon size={18} />
 				{T.home.hero.cta}
 			</a>
@@ -223,7 +241,10 @@
 		<div class="uuid-demo" aria-hidden="true">
 			<span class="mono uuid-demo-text">
 				{#each animatedChars as char, i (i)}
-					<span class="uuid-char" class:uuid-sep={char === '-' || TEMPLATE[i] === '4'}>{char}</span>
+					<span
+						class="uuid-char"
+						class:uuid-sep={char === '-' || TEMPLATE[i] === '4'}>{char}</span
+					>
 				{/each}
 			</span>
 		</div>
@@ -253,7 +274,9 @@
 		<div class="section-header">
 			<h2 class="section-title">{T.home.users.title}</h2>
 			{#if data.totalCount > 0}
-				<span class="user-count">{data.totalCount} {T.home.users.registered}</span>
+				<span class="user-count"
+					>{data.totalCount} {T.home.users.registered}</span
+				>
 			{/if}
 		</div>
 
@@ -292,7 +315,9 @@
 
 		{#if data.query && visibleUsers.length > 0}
 			<p class="search-result-count">
-				{T.home.users.searchResults.replace('{count}', String(visibleUsers.length)).replace('{query}', data.query)}
+				{T.home.users.searchResults
+					.replace('{count}', String(visibleUsers.length))
+					.replace('{query}', data.query)}
 			</p>
 		{/if}
 
@@ -307,9 +332,18 @@
 		{:else}
 			<div class="user-grid">
 				{#each visibleUsers as user (user.id)}
-					<a href="/u/{user.id}" class="user-card" class:cosmic-card={user.collision_detected}>
+					<a
+						href="/u/{user.id}"
+						class="user-card"
+						class:cosmic-card={user.collision_detected}
+					>
 						<div class="user-card-header">
-							<img src={user.avatar_url} alt={user.username} class="user-avatar" loading="lazy" />
+							<img
+								src={user.avatar_url}
+								alt={user.username}
+								class="user-avatar"
+								loading="lazy"
+							/>
 							<div class="user-info">
 								<span class="username">@{user.username}</span>
 								{#if user.collision_detected}
@@ -320,7 +354,8 @@
 						<p class="user-uuid mono">{user.id}</p>
 						<div class="user-card-footer">
 							<span class="user-date">
-								{T.home.users.memberSince} {formatDate(user.created_at, data.lang)}
+								{T.home.users.memberSince}
+								{formatDate(user.created_at, data.lang)}
 							</span>
 							<span class="view-link">
 								{T.home.users.viewProfile}
@@ -419,7 +454,11 @@
 	}
 
 	.cosmic-banner {
-		background: linear-gradient(135deg, rgba(240, 171, 252, 0.08), rgba(129, 140, 248, 0.08));
+		background: linear-gradient(
+			135deg,
+			rgba(240, 171, 252, 0.08),
+			rgba(129, 140, 248, 0.08)
+		);
 		border-block: 1px solid rgba(240, 171, 252, 0.2);
 		padding-block: var(--space-3);
 		text-align: center;
@@ -438,7 +477,11 @@
 	}
 
 	.lookup-error-banner {
-		background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(127, 29, 29, 0.2));
+		background: linear-gradient(
+			135deg,
+			rgba(239, 68, 68, 0.16),
+			rgba(127, 29, 29, 0.2)
+		);
 		border-block: 1px solid rgba(248, 113, 113, 0.4);
 	}
 

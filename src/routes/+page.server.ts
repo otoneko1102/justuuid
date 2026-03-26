@@ -5,7 +5,7 @@ import {
 	getUserByUsername,
 	hasAnyCollision,
 	listUsers,
-	searchUsers
+	searchUsers,
 } from '$lib/db';
 
 export const load: PageServerLoad = async ({ platform, url }) => {
@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 	const baseData = {
 		query,
 		lookupError: lookupError ? 'user-not-found' : null,
-		lookupUsername
+		lookupUsername,
 	};
 
 	if (!db) {
@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 			users: [],
 			hasCollision: false,
 			totalCount: 0,
-			...baseData
+			...baseData,
 		};
 	}
 
@@ -58,14 +58,14 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 			users,
 			hasCollision,
 			totalCount,
-			...baseData
+			...baseData,
 		};
 	} catch {
 		return {
 			users: [],
 			hasCollision: false,
 			totalCount: 0,
-			...baseData
+			...baseData,
 		};
 	}
 };

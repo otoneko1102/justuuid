@@ -4,7 +4,12 @@ import { getUserById, getAllUserIds, getUsersByIds } from '$lib/db';
 import { topSimilar } from '$lib/similarity';
 import type { UserWithScore } from '$lib/types';
 
-export const load: PageServerLoad = async ({ params, platform, locals, url }) => {
+export const load: PageServerLoad = async ({
+	params,
+	platform,
+	locals,
+	url,
+}) => {
 	const db = platform?.env?.DB;
 
 	if (!db) {

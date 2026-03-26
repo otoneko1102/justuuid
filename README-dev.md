@@ -60,11 +60,11 @@ In Cloudflare Dashboard:
 
 Then set environment variables in `Settings -> Environment variables`:
 
-| Variable | Value |
-|---|---|
-| `GITHUB_CLIENT_ID` | GitHub OAuth App client ID |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth App client secret |
-| `JWT_SECRET` | Random string, at least 32 chars |
+| Variable               | Value                            |
+| ---------------------- | -------------------------------- |
+| `GITHUB_CLIENT_ID`     | GitHub OAuth App client ID       |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth App client secret   |
+| `JWT_SECRET`           | Random string, at least 32 chars |
 
 Generate a JWT secret with:
 

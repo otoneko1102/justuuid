@@ -67,7 +67,11 @@ function _similarityBytes(ab: Uint8Array, bb: Uint8Array): number {
  * Inline computation — avoids per-call overhead of similarity().
  * Returns sorted descending by score (excluding target itself).
  */
-export function topSimilar(target: string, candidates: string[], limit = 10): SimilarityResult[] {
+export function topSimilar(
+	target: string,
+	candidates: string[],
+	limit = 10,
+): SimilarityResult[] {
 	const targetBytes = uuidToBytes(target);
 
 	// Use a small array for top-K (limit is typically ≤10, so linear scan is fine).
@@ -82,7 +86,11 @@ export function topSimilar(target: string, candidates: string[], limit = 10): Si
 		if (results.length < limit) {
 			results.push({ id, score });
 			// Keep sorted: insertion sort upward
-			for (let i = results.length - 1; i > 0 && results[i].score > results[i - 1].score; i--) {
+			for (
+				let i = results.length - 1;
+				i > 0 && results[i].score > results[i - 1].score;
+				i--
+			) {
 				const tmp = results[i];
 				results[i] = results[i - 1];
 				results[i - 1] = tmp;

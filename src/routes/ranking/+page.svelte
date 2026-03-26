@@ -5,8 +5,7 @@
 	let { data }: { data: PageData } = $props();
 
 	const T = $derived(t(data.lang));
-
-	const MEDAL = ['🥇', '🥈', '🥉'];
+	const MEDAL = ['#1', '#2', '#3'];
 
 	function rankClass(index: number): string {
 		if (index === 0) return 'rank-gold';
@@ -24,7 +23,7 @@
 <div class="ranking-page container">
 	<div class="ranking-header">
 		<h1 class="ranking-title">
-			<span class="mi" style="color: var(--accent); font-size: 1.5rem;">leaderboard</span>
+			<span class="mi ranking-title-icon">leaderboard</span>
 			{T.ranking.title}
 		</h1>
 		<p class="ranking-subtitle">{T.ranking.subtitle}</p>
@@ -50,22 +49,34 @@
 
 					<div class="pair-users">
 						<a href="/u/{pair.uuid_a}" class="pair-user">
-							<img src={pair.avatar_url_a} alt="@{pair.username_a}" class="pair-avatar" />
+							<img
+								src={pair.avatar_url_a}
+								alt="@{pair.username_a}"
+								class="pair-avatar"
+							/>
 							<div class="pair-user-info">
 								<span class="pair-username">@{pair.username_a}</span>
-								<span class="mono pair-uuid">{pair.uuid_a.slice(0, 8)}…</span>
+								<span class="mono pair-uuid" title={pair.uuid_a}
+									>{pair.uuid_a}</span
+								>
 							</div>
 						</a>
 
 						<div class="pair-vs">
-							<span class="mi mi-sm" style="color: var(--text-subtle)">compare_arrows</span>
+							<span class="mi mi-sm vs-icon">compare_arrows</span>
 						</div>
 
 						<a href="/u/{pair.uuid_b}" class="pair-user">
-							<img src={pair.avatar_url_b} alt="@{pair.username_b}" class="pair-avatar" />
+							<img
+								src={pair.avatar_url_b}
+								alt="@{pair.username_b}"
+								class="pair-avatar"
+							/>
 							<div class="pair-user-info">
 								<span class="pair-username">@{pair.username_b}</span>
-								<span class="mono pair-uuid">{pair.uuid_b.slice(0, 8)}…</span>
+								<span class="mono pair-uuid" title={pair.uuid_b}
+									>{pair.uuid_b}</span
+								>
 							</div>
 						</a>
 					</div>
@@ -73,7 +84,10 @@
 					<div class="pair-score-wrap">
 						<span class="pair-pct">{(pair.score * 100).toFixed(2)}%</span>
 						<div class="pair-bar-bg">
-							<div class="pair-bar-fill" style="width: {(pair.score * 100).toFixed(2)}%"></div>
+							<div
+								class="pair-bar-fill"
+								style="width: {(pair.score * 100).toFixed(2)}%"
+							></div>
 						</div>
 					</div>
 				</li>
@@ -88,7 +102,7 @@
 		flex-direction: column;
 		gap: var(--space-8);
 		padding-block: var(--space-12) var(--space-16);
-		max-width: 720px;
+		max-width: 980px;
 	}
 
 	.ranking-header {
@@ -101,9 +115,14 @@
 		display: flex;
 		align-items: center;
 		gap: var(--space-3);
-		font-size: 1.75rem;
+		font-size: clamp(1.5rem, 1.3rem + 0.7vw, 2rem);
 		font-weight: 700;
 		letter-spacing: -0.02em;
+	}
+
+	.ranking-title-icon {
+		color: var(--accent);
+		font-size: 1.5rem;
 	}
 
 	.ranking-subtitle {
@@ -112,7 +131,6 @@
 		line-height: 1.6;
 	}
 
-	/* Empty state */
 	.empty-state {
 		display: flex;
 		flex-direction: column;
@@ -135,7 +153,6 @@
 		color: var(--text-muted);
 	}
 
-	/* Pairs list */
 	.pairs-list {
 		list-style: none;
 		padding: 0;
@@ -146,13 +163,14 @@
 	}
 
 	.pair-card {
-		display: flex;
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr) auto;
 		align-items: center;
-		gap: var(--space-4);
+		gap: var(--space-5);
 		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
-		padding: var(--space-4) var(--space-5);
+		padding: var(--space-5) var(--space-6);
 		transition: border-color 0.15s ease;
 	}
 
@@ -162,30 +180,66 @@
 
 	.pair-card.rank-gold {
 		border-color: rgba(251, 191, 36, 0.4);
-		background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, var(--surface) 50%);
+		background: linear-gradient(
+			135deg,
+			rgba(251, 191, 36, 0.05) 0%,
+			var(--surface) 50%
+		);
 	}
 
 	.pair-card.rank-silver {
 		border-color: rgba(156, 163, 175, 0.4);
-		background: linear-gradient(135deg, rgba(156, 163, 175, 0.05) 0%, var(--surface) 50%);
+		background: linear-gradient(
+			135deg,
+			rgba(156, 163, 175, 0.05) 0%,
+			var(--surface) 50%
+		);
 	}
 
 	.pair-card.rank-bronze {
 		border-color: rgba(180, 117, 60, 0.4);
-		background: linear-gradient(135deg, rgba(180, 117, 60, 0.05) 0%, var(--surface) 50%);
+		background: linear-gradient(
+			135deg,
+			rgba(180, 117, 60, 0.05) 0%,
+			var(--surface) 50%
+		);
 	}
 
 	.pair-rank {
 		flex-shrink: 0;
-		width: 40px;
+		width: 42px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 
 	.medal {
-		font-size: 1.5rem;
+		font-size: 0.8125rem;
 		line-height: 1;
+		font-weight: 700;
+		padding: 0.25rem 0.5rem;
+		border-radius: 9999px;
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+		background: var(--bg);
+	}
+
+	.rank-gold .medal {
+		border-color: rgba(251, 191, 36, 0.5);
+		color: rgb(180, 83, 9);
+		background: rgba(251, 191, 36, 0.18);
+	}
+
+	.rank-silver .medal {
+		border-color: rgba(156, 163, 175, 0.5);
+		color: rgb(75, 85, 99);
+		background: rgba(156, 163, 175, 0.18);
+	}
+
+	.rank-bronze .medal {
+		border-color: rgba(180, 117, 60, 0.5);
+		color: rgb(120, 53, 15);
+		background: rgba(180, 117, 60, 0.18);
 	}
 
 	.rank-num {
@@ -195,8 +249,8 @@
 	}
 
 	.pair-users {
-		flex: 1;
-		display: flex;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 		align-items: center;
 		gap: var(--space-3);
 		min-width: 0;
@@ -207,11 +261,10 @@
 		align-items: center;
 		gap: var(--space-2);
 		min-width: 0;
-		flex: 1;
 		text-decoration: none;
 		color: var(--text);
 		border-radius: var(--radius-sm);
-		padding: var(--space-1);
+		padding: var(--space-2);
 		transition: background 0.15s ease;
 	}
 
@@ -220,8 +273,8 @@
 	}
 
 	.pair-avatar {
-		width: 36px;
-		height: 36px;
+		width: 38px;
+		height: 38px;
 		border-radius: var(--radius-full);
 		object-fit: cover;
 		border: 1px solid var(--border);
@@ -231,8 +284,10 @@
 	.pair-user-info {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 3px;
 		min-width: 0;
+		flex: 1;
+		overflow: hidden;
 	}
 
 	.pair-username {
@@ -244,16 +299,25 @@
 	}
 
 	.pair-uuid {
-		font-size: 0.5625rem;
+		display: block;
+		font-size: clamp(0.58rem, 0.52rem + 0.22vw, 0.76rem);
 		color: var(--text-subtle);
 		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+		overflow-x: auto;
+		overflow-y: hidden;
+		line-height: 1.35;
+		letter-spacing: 0.01em;
+		padding-bottom: 1px;
+		scrollbar-width: thin;
 	}
 
 	.pair-vs {
 		flex-shrink: 0;
 		padding-inline: var(--space-2);
+	}
+
+	.vs-icon {
+		color: var(--text-subtle);
 	}
 
 	.pair-score-wrap {
@@ -262,17 +326,17 @@
 		flex-direction: column;
 		align-items: flex-end;
 		gap: var(--space-1);
-		min-width: 68px;
+		min-width: 84px;
 	}
 
 	.pair-pct {
-		font-size: 1rem;
+		font-size: clamp(0.9375rem, 0.88rem + 0.2vw, 1.08rem);
 		font-weight: 700;
 		color: var(--accent);
 	}
 
 	.pair-bar-bg {
-		width: 68px;
+		width: 84px;
 		height: 5px;
 		background: var(--border);
 		border-radius: 9999px;
@@ -285,25 +349,40 @@
 		border-radius: 9999px;
 	}
 
-	@media (max-width: 600px) {
+	@media (max-width: 820px) {
+		.ranking-page {
+			padding-block: var(--space-8) var(--space-10);
+			gap: var(--space-6);
+		}
+
+		.pair-card {
+			padding: var(--space-4) var(--space-4);
+			gap: var(--space-4);
+		}
+	}
+
+	@media (max-width: 680px) {
 		.ranking-page {
 			padding-block: var(--space-6) var(--space-8);
 		}
 
-		.ranking-title {
-			font-size: 1.375rem;
+		.pair-card {
+			grid-template-columns: auto minmax(0, 1fr);
+			gap: var(--space-3);
+			padding: var(--space-3) var(--space-3);
 		}
 
-		.pair-card {
-			flex-wrap: wrap;
-			gap: var(--space-3);
-			padding: var(--space-3) var(--space-4);
+		.pair-rank {
+			width: 36px;
 		}
 
 		.pair-users {
-			flex-direction: column;
-			align-items: flex-start;
+			grid-column: 1 / -1;
+			grid-template-columns: minmax(0, 1fr);
 			gap: var(--space-2);
+		}
+
+		.pair-user {
 			width: 100%;
 		}
 
@@ -311,13 +390,11 @@
 			display: none;
 		}
 
-		.pair-user {
-			width: 100%;
-		}
-
 		.pair-score-wrap {
+			grid-column: 1 / -1;
 			width: 100%;
 			align-items: flex-start;
+			margin-top: var(--space-1);
 		}
 
 		.pair-bar-bg {
@@ -325,7 +402,34 @@
 		}
 
 		.pair-uuid {
-			font-size: 0.5rem;
+			font-size: clamp(0.52rem, 1.7vw, 0.66rem);
+		}
+	}
+
+	@media (max-width: 420px) {
+		.ranking-title {
+			font-size: 1.35rem;
+		}
+
+		.pair-card {
+			padding: var(--space-2) var(--space-2);
+		}
+
+		.pair-avatar {
+			width: 32px;
+			height: 32px;
+		}
+
+		.pair-user {
+			padding: var(--space-1);
+		}
+
+		.pair-username {
+			font-size: 0.8125rem;
+		}
+
+		.pair-uuid {
+			font-size: 0.52rem;
 		}
 	}
 </style>

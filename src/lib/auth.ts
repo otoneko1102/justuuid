@@ -28,13 +28,13 @@ async function importKey(secret: string): Promise<CryptoKey> {
 		toBuffer(encoder.encode(secret)),
 		{ name: 'HMAC', hash: 'SHA-256' },
 		false,
-		['sign', 'verify']
+		['sign', 'verify'],
 	);
 }
 
 export async function signJWT(
 	payload: Omit<JWTPayload, 'iat' | 'exp'>,
-	secret: string
+	secret: string,
 ): Promise<string> {
 	const now = Math.floor(Date.now() / 1000);
 	const fullPayload: JWTPayload = {
@@ -43,19 +43,24 @@ export async function signJWT(
 		exp: now + 60 * 60 * 24 * 30, // 30 days
 	};
 
-	const header = base64url(toBuffer(encoder.encode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))));
+	const header = base64url(
+		toBuffer(encoder.encode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))),
+	);
 	const body = base64url(toBuffer(encoder.encode(JSON.stringify(fullPayload))));
 	const key = await importKey(secret);
 	const sig = await crypto.subtle.sign(
 		'HMAC',
 		key,
-		toBuffer(encoder.encode(`${header}.${body}`))
+		toBuffer(encoder.encode(`${header}.${body}`)),
 	);
 
 	return `${header}.${body}.${base64url(sig)}`;
 }
 
-export async function verifyJWT(token: string, secret: string): Promise<JWTPayload | null> {
+export async function verifyJWT(
+	token: string,
+	secret: string,
+): Promise<JWTPayload | null> {
 	try {
 		const parts = token.split('.');
 		if (parts.length !== 3) return null;
@@ -67,12 +72,12 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
 			'HMAC',
 			key,
 			base64urlDecode(sig),
-			toBuffer(encoder.encode(`${header}.${body}`))
+			toBuffer(encoder.encode(`${header}.${body}`)),
 		);
 		if (!valid) return null;
 
 		const payload: JWTPayload = JSON.parse(
-			new TextDecoder().decode(base64urlDecode(body))
+			new TextDecoder().decode(base64urlDecode(body)),
 		);
 
 		if (payload.exp < Math.floor(Date.now() / 1000)) return null;
