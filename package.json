@@ -12,6 +12,7 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"db:migrate": "wrangler d1 migrations apply justuuid-db",
+		"db:migrate:remote": "wrangler d1 migrations apply justuuid-db --remote",
 		"db:migrate:local": "wrangler d1 migrations apply justuuid-db --local",
 		"deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name justuuid"
 	},

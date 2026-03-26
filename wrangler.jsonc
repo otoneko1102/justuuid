@@ -5,6 +5,15 @@
 	"compatibility_date": "2026-03-24",
 	"compatibility_flags": ["nodejs_compat"],
 
-	// Local-only Wrangler settings. Production bindings and secrets live in the Cloudflare Pages dashboard.
+	// D1 binding for local development (and Wrangler-managed deployments, if enabled).
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "justuuid-db",
+			"database_id": "b0ca6049-a827-49ea-8eec-be1b26eac33b"
+		}
+	],
+
+	// Keep secrets out of the repository.
 	"vars": {},
 }
