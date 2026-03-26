@@ -313,6 +313,10 @@
 	.banner-title {
 		color: var(--accent);
 		font-weight: 500;
+		white-space: nowrap;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scrollbar-width: thin;
 	}
 
 	.share-row {
@@ -338,6 +342,10 @@
 
 	.share-label {
 		font-size: 0.8125rem;
+		white-space: nowrap;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scrollbar-width: thin;
 	}
 
 	.share-url-row {
@@ -348,10 +356,17 @@
 	}
 
 	.share-link {
+		display: block;
+		flex: 1;
+		max-width: 100%;
 		font-size: 0.75rem;
 		color: var(--text);
-		word-break: break-all;
+		white-space: nowrap;
+		word-break: normal;
+		overflow-x: auto;
+		overflow-y: hidden;
 		min-width: 0;
+		scrollbar-width: thin;
 	}
 
 	.btn-copy {
