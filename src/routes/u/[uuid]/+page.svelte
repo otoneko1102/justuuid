@@ -138,6 +138,24 @@
 						</button>
 					</div>
 				</div>
+				<div class="share-row badge-row">
+					<div class="badge-copy-row">
+						<span class="share-label">{T.user.badgeLabel}</span>
+						<button
+							class="btn-copy btn-copy-text"
+							onclick={copyBadge}
+							title={T.user.copyBadge}
+						>
+							{#if copiedBadge}
+								<span class="mi mi-sm">check</span>
+								{T.user.copied}
+							{:else}
+								<span class="mi mi-sm">content_copy</span>
+								{T.user.copyBadge}
+							{/if}
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	{/if}
@@ -189,34 +207,6 @@
 			{formatDate(data.user.created_at, data.lang)}
 		</p>
 	</div>
-
-	{#if data.isOwner}
-		<div class="badge-section">
-			<div class="badge-section-header">
-				<span class="mi mi-sm" style="color: var(--text-subtle)">code</span>
-				<span class="badge-section-title">{T.user.badgeLabel}</span>
-			</div>
-			<div class="badge-preview">
-				<img
-					src={`${data.origin}/api/badge/u/${data.user.id}.svg`}
-					alt="UUID Badge"
-				/>
-			</div>
-			<div class="share-row">
-				<span class="share-label">{T.user.badgeHint}</span>
-			</div>
-			<div class="badge-snippet-row">
-				<pre class="mono badge-snippet">{badgeSnippet}</pre>
-				<button class="btn-copy" onclick={copyBadge} title={T.user.copyBadge}>
-					{#if copiedBadge}
-						<span class="mi mi-sm">check</span>
-					{:else}
-						<span class="mi mi-sm">content_copy</span>
-					{/if}
-				</button>
-			</div>
-		</div>
-	{/if}
 
 	<div class="similar-section">
 		<div class="similar-header">
@@ -332,6 +322,20 @@
 		color: var(--text-muted);
 	}
 
+	.badge-row {
+		margin-top: var(--space-2);
+		padding-top: var(--space-2);
+		border-top: 1px solid rgba(129, 140, 248, 0.15);
+	}
+
+	.badge-copy-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-2);
+		flex-wrap: wrap;
+	}
+
 	.share-label {
 		font-size: 0.8125rem;
 	}
@@ -372,59 +376,11 @@
 		border-color: var(--accent);
 	}
 
-	.badge-snippet-row {
-		display: flex;
-		align-items: flex-start;
-		gap: var(--space-2);
-		min-width: 0;
-	}
-
-	.badge-snippet {
-		font-size: 0.6875rem;
-		color: var(--text);
-		word-break: break-all;
-		white-space: pre-wrap;
-		min-width: 0;
-		margin: 0;
-		line-height: 1.5;
-		background: var(--bg);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		padding: var(--space-2) var(--space-3);
-		flex: 1;
-	}
-
-	.badge-section {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-3);
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		padding: var(--space-4) var(--space-5);
-	}
-
-	.badge-section-header {
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
-	}
-
-	.badge-section-title {
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--text-muted);
-	}
-
-	.badge-preview {
-		display: flex;
-		justify-content: center;
-		padding: var(--space-2) 0;
-	}
-
-	.badge-preview img {
-		height: 20px;
+	.btn-copy-text {
+		width: auto;
+		height: 30px;
+		padding: 0 var(--space-2);
+		gap: 4px;
 	}
 
 	.profile-card {
@@ -729,14 +685,6 @@
 		.cosmic-event {
 			padding: var(--space-3) var(--space-4);
 			gap: var(--space-3);
-		}
-
-		.badge-section {
-			padding: var(--space-3) var(--space-4);
-		}
-
-		.badge-snippet {
-			font-size: 0.625rem;
 		}
 
 		.similar-uuid {
