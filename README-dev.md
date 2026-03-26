@@ -1,16 +1,31 @@
 # JustUUID Developer Guide
 
-## Overview
+このドキュメントは、JustUUID の開発・運用を行う人向けの詳細ガイドです。
 
-JustUUID runs on Cloudflare Pages with SvelteKit server routes and a Cloudflare D1 database.
+## 1. アーキテクチャ概要
 
-## Prerequisites
+- Framework: SvelteKit (Svelte 5)
+- Runtime: Cloudflare Pages Functions
+- DB: Cloudflare D1 (`DB` binding)
+- Auth: GitHub OAuth
+- Session: JWT cookie (`session`)
+
+主要データ:
+
+- `users` テーブル: ユーザー基本情報 + UUID
+- `similarity_pairs` テーブル: 全体類似度ランキング用ペア
+- `ranking_meta` テーブル: ランキングの更新状態（自動作成）
+
+## 2. 前提条件
 
 - Node.js 20+
-- A Cloudflare account
-- A GitHub OAuth App
+- npm
+- Cloudflare アカウント
+- GitHub OAuth App
 
-## Install
+## 3. 初期セットアップ
+
+### 3.1 リポジトリ
 
 ```bash
 git clone <your-repo-url>
@@ -18,116 +33,187 @@ cd justuuid
 npm install
 ```
 
-## GitHub OAuth App
+### 3.2 GitHub OAuth App
 
-Create an OAuth App in GitHub and set:
+GitHub で OAuth App を作成し、以下を設定:
 
 - Homepage URL: `https://justuuid.pages.dev`
 - Authorization callback URL: `https://justuuid.pages.dev/auth/callback`
+- ローカル用 callback: `http://localhost:5173/auth/callback`
 
-For local development, also allow:
+### 3.3 ローカル環境変数
 
-- `http://localhost:5173/auth/callback`
+`.dev.vars` を作成（`.dev.vars.example` を参照）:
 
-Keep these values outside the repository:
+```txt
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+JWT_SECRET=...
+```
 
-- `GITHUB_CLIENT_ID`
-- `GITHUB_CLIENT_SECRET`
+`JWT_SECRET` は 32文字以上推奨:
 
-## D1 Database
+```bash
+openssl rand -hex 32
+```
 
-Create the database:
+### 3.4 D1 データベース
+
+初回作成:
 
 ```bash
 npx wrangler login
 npx wrangler d1 create justuuid-db
 ```
 
-Save the returned `database_id` somewhere private. Do not commit it.
-
-## Cloudflare Pages Configuration
-
-If the Cloudflare dashboard says this project is managed through `wrangler.toml` or `wrangler.jsonc`, first deploy a revision that does not use `pages_build_output_dir` in the Wrangler file. This repository is already set up that way so the dashboard can become editable again after the next deployment.
-
-In Cloudflare Dashboard:
-
-1. Open `Workers & Pages`
-2. Select the Pages project
-3. Go to `Settings -> Bindings`
-4. Add a D1 binding named `DB`
-5. Select `justuuid-db`
-6. Redeploy
-
-Then set environment variables in `Settings -> Environment variables`:
-
-| Variable               | Value                            |
-| ---------------------- | -------------------------------- |
-| `GITHUB_CLIENT_ID`     | GitHub OAuth App client ID       |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth App client secret   |
-| `JWT_SECRET`           | Random string, at least 32 chars |
-
-Generate a JWT secret with:
+スキーマ適用:
 
 ```bash
-openssl rand -hex 32
+# リモート
+npm run db:migrate:remote
+
+# ローカル
+npm run db:migrate:local
 ```
 
-## Migrations
+## 4. 実行方法
 
-Apply migrations to the remote database:
-
-```bash
-npx wrangler d1 migrations apply justuuid-db --remote
-```
-
-Apply migrations to local D1 storage:
-
-```bash
-npx wrangler d1 migrations apply justuuid-db --local
-```
-
-## Local Development
-
-Create local secrets:
-
-```bash
-cp .dev.vars.example .dev.vars
-```
-
-Fill in:
-
-- `GITHUB_CLIENT_ID`
-- `GITHUB_CLIENT_SECRET`
-- `JWT_SECRET`
-
-Run the app in normal local dev mode:
+### 4.1 通常のローカル開発
 
 ```bash
 npm run dev
 ```
 
-If you need local Cloudflare Pages bindings with D1:
+### 4.2 型チェック/整形
+
+```bash
+npm run check
+npm run format:check
+npm run format
+```
+
+### 4.3 Cloudflare Pages 互換での確認
 
 ```bash
 npm run build
-npx wrangler pages dev .svelte-kit/cloudflare --d1 DB=YOUR_DATABASE_ID
+npx wrangler pages dev .svelte-kit/cloudflare
 ```
 
-## Deploy
+## 5. Cloudflare 設定方針
 
-First deploy:
+### 5.1 `wrangler.jsonc`
+
+このリポジトリの `wrangler.jsonc` には D1 binding (`DB`) が定義されています。  
+環境変数の秘密値は入れません。
+
+### 5.2 ダッシュボードで管理する値
+
+Cloudflare Pages 側で以下を設定:
+
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
+- `JWT_SECRET`
+- D1 binding `DB`（必要に応じて確認）
+
+## 6. 全体ランキング更新戦略（重要）
+
+全体ランキングは `similarity_pairs` を参照します。  
+再計算は重いため、無料枠を考慮して「必要時のみ」実行します。
+
+更新トリガー:
+
+- `similarity_pairs` が空
+- 前回更新時からユーザー数が変化
+- 前回更新から 6 時間経過
+
+制御:
+
+- `ranking_meta` に更新時刻・ユーザー数スナップショットを保存
+- 同時更新防止ロック（10分タイムアウト）
+- 上位 `MAX_GLOBAL_RANKING_PAIRS`（現在 500）まで保存
+
+実装:
+
+- `src/lib/ranking.ts`
+- `src/routes/ranking/+page.server.ts`
+- `src/routes/api/ranking/+server.ts`
+
+## 7. ユーザー個別類似ランキング
+
+`/u/{uuid}` の「最も近いUUID」は都度計算です（初期10件、追加10件）。
+
+実装:
+
+- `src/lib/similar-users.ts`
+- `src/routes/u/[uuid]/+page.server.ts`
+- `src/routes/api/similar/[uuid]/+server.ts`
+
+## 8. 主要 API エンドポイント
+
+- `POST /api/users`  
+  ホーム一覧のソート/追加読み込み
+- `POST /api/similar/{uuid}`  
+  個別類似ランキングの追加読み込み
+- `POST /api/ranking`  
+  全体ランキングの追加読み込み
+- `GET /api/badge/users.svg`  
+  登録ユーザー数バッジ
+- `GET /api/badge/user/{github-username}.svg`  
+  GitHubユーザー名指定のUUIDバッジ
+- `GET /api/badge/u/{uuid}.svg`  
+  UUID指定バッジ
+
+## 9. ディレクトリ早見
+
+```txt
+src/
+  lib/
+    auth.ts
+    db.ts
+    ranking.ts
+    similar-users.ts
+    similarity.ts
+  routes/
+    +page.svelte
+    ranking/
+    u/[uuid]/
+    api/
+migrations/
+  0001_initial.sql
+  0002_similarity_pairs.sql
+```
+
+## 10. デプロイ
+
+```bash
+npm run deploy
+```
+
+手動で明示する場合:
 
 ```bash
 npm run build
 npx wrangler pages deploy .svelte-kit/cloudflare --project-name justuuid
 ```
 
-Subsequent deploys:
+## 11. トラブルシュート
+
+### ランキングが更新されない
+
+- `/ranking` を開いても更新されない場合は、`ranking_meta` の更新条件を満たしているか確認
+- Cloudflare Logs で関数エラー確認
+- D1 に `users` / `similarity_pairs` / `ranking_meta` が存在するか確認
+
+### ログインできない
+
+- OAuth callback URL を再確認
+- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` / `JWT_SECRET` の設定確認
+
+### DBエラー
+
+- `DB` binding 名がコードと一致しているか確認
+- マイグレーション再適用:
 
 ```bash
-npm run deploy
+npm run db:migrate:remote
 ```
-
-If GitHub integration is enabled for Cloudflare Pages, keep bindings and secrets in the Cloudflare dashboard.
-
-If you are switching an existing Pages project from Wrangler-managed configuration to dashboard-managed configuration, push this change first, let Cloudflare create a new deployment, and then add the `DB` binding in the dashboard.

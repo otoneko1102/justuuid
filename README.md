@@ -5,93 +5,74 @@
 
 **Your permanent identity, one UUID at a time.**
 
-JustUUID is a small web service that assigns a permanent UUID v4 to a GitHub account.
+JustUUID は GitHub アカウントごとに **永続UUID v4** を 1 つ割り当てるサービスです。  
+公開プロフィールURLと、READMEに貼れるバッジを提供します。
 
-After signing in with GitHub, a user gets:
+Live: [https://justuuid.pages.dev](https://justuuid.pages.dev)
 
-- a permanent UUID
-- a public profile page
-- a shareable URL
+## 主な機能
 
-Live site: [justuuid.pages.dev](https://justuuid.pages.dev/)
+- GitHub OAuth ログインで UUID を発行（同じアカウントは同じUUIDを維持）
+- 公開プロフィールページ `/u/{uuid}`
+- `/?user={github-username}` でユーザー検索（大文字小文字を区別しない）
+- トップのユーザー一覧
+  - ランダム / 新しい順 / 古い順
+  - 「もっと見る」で追加表示（ページ再読み込みなし）
+- 各ユーザーの類似UUIDランキング
+  - 初期10件表示
+  - 「もっと見る」で10件ずつ追加
+- 全体UUID類似度ランキング `/ranking`
+  - 初期20件表示
+  - 「もっと見る」で20件ずつ追加
+  - 自動更新（ユーザー数変化 or 6時間経過時）
+- README向けSVGバッジ API
 
-## README Badge
+## SVG バッジ
 
-Registered user count badge:
+登録ユーザー数:
 
 ```md
 ![JustUUID Users](https://justuuid.pages.dev/api/badge/users.svg)
 ```
 
-Badge endpoint: `GET /api/badge/users.svg`
-
-UUID badge by GitHub username:
+GitHubユーザー名からUUID:
 
 ```md
 ![octocat UUID](https://justuuid.pages.dev/api/badge/user/octocat.svg)
 ```
 
-Endpoint: `GET /api/badge/user/{github-username}.svg`
-
-UUID badge by UUID:
+UUID指定:
 
 ```md
 ![UUID badge](https://justuuid.pages.dev/api/badge/u/00000000-0000-4000-8000-000000000000.svg)
 ```
 
-Endpoint: `GET /api/badge/u/{uuid}.svg`
+エンドポイント:
 
-## What It Does
+- `GET /api/badge/users.svg`
+- `GET /api/badge/user/{github-username}.svg`
+- `GET /api/badge/u/{uuid}.svg`
 
-- Sign in with GitHub and receive a UUID v4
-- Keep the same UUID for the same GitHub account
-- Publish a simple public profile page
-- Resolve `?user=<github-username>` to that profile when the user exists
-- Support English and Japanese
+## 公開ページ
 
-## Public Profile
+- Home: `/`
+- Ranking: `/ranking`
+- Privacy Policy: `/privacy-policy`
+- Terms of Service: `/terms-of-service`
 
-Each public profile can show:
+## データとセキュリティ
 
-- GitHub username
-- Avatar
-- UUID
-- Joined date
-
-Profile pages are public by design.
-
-## Privacy Summary
-
-JustUUID stores only the data needed to operate the service:
-
-- GitHub user ID
-- GitHub username
-- GitHub avatar URL
-- Assigned UUID
-
-See the live legal pages for details:
-
-- [Privacy Policy](https://justuuid.pages.dev/privacy-policy)
-- [Terms of Service](https://justuuid.pages.dev/terms-of-service)
-
-## Open Source
-
-This repository is public. It contains the application source code, but it does not contain deployment secrets such as:
+このリポジトリには以下の**秘密情報は含めません**。
 
 - `GITHUB_CLIENT_SECRET`
 - `JWT_SECRET`
-- Cloudflare D1 `database_id`
 
-## Tech Stack
+`database_id` は D1 バインディングの識別子であり、認証情報そのものではありません。  
+実際の機密値（OAuthシークレット/JWTシークレット）は Cloudflare 側の環境変数で管理します。
 
-- SvelteKit
-- Cloudflare Pages Functions
-- Cloudflare D1
-- GitHub OAuth
+## 開発者向け
 
-## Development
-
-Developer setup and deployment instructions are documented in [README-dev.md](./README-dev.md).
+セットアップ・運用・デプロイ詳細は [README-dev.md](./README-dev.md) を参照してください。
 
 ## License
 
