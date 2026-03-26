@@ -53,13 +53,12 @@ export const ja = {
 		},
 		similar: {
 			title: '最も近いUUID',
-			hint: '先頭のビットほど重みが大きく計算されます。',
 			empty: 'まだ他のユーザーが登録されていません。'
 		}
 	},
 	ranking: {
 		title: 'UUID類似度ランキング',
-		subtitle: '全ユーザーの中で最も近いUUIDのペア。先頭のビットほど重みが大きく計算されます。',
+		subtitle: '全ユーザーの中で最も近いUUIDのペア。',
 		empty: 'まだペアがありません。最初の1人になりましょう！'
 	},
 	auth: {

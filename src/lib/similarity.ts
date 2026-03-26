@@ -22,9 +22,13 @@ for (let i = 0; i < NUM_BITS; i++) {
 	WEIGHTS[i] = 1 / (i + 1);
 }
 let MAX_SCORE = 0;
+let BASELINE = 0;
 for (let i = 0; i < NUM_BITS; i++) {
 	MAX_SCORE += WEIGHTS[i];
+	BASELINE += WEIGHTS[i] * 0.5; // random expectation: each bit matches 50%
 }
+// Effective range: [BASELINE, MAX_SCORE] → normalize to [0, 1]
+const SCORE_RANGE = MAX_SCORE - BASELINE;
 
 export interface SimilarityResult {
 	id: string;
@@ -54,7 +58,8 @@ function _similarityBytes(ab: Uint8Array, bb: Uint8Array): number {
 			bitIdx++;
 		}
 	}
-	return score / MAX_SCORE;
+	// Normalize: subtract random baseline so random pairs ≈ 0%, identical = 100%
+	return Math.max(0, (score - BASELINE) / SCORE_RANGE);
 }
 
 /**

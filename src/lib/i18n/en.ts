@@ -54,13 +54,12 @@ export const en = {
 		},
 		similar: {
 			title: 'Most Similar UUIDs',
-			hint: 'Leading bits are weighted more heavily.',
 			empty: 'No other users registered yet.',
 		},
 	},
 	ranking: {
 		title: 'UUID Similarity Ranking',
-		subtitle: 'The most similar UUID pairs. Leading bits carry more weight.',
+		subtitle: 'The most similar UUID pairs across all registered users.',
 		empty: 'No pairs yet. Be among the first to join!',
 	},
 	auth: {

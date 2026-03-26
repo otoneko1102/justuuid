@@ -129,7 +129,6 @@
 					</li>
 				{/each}
 			</ul>
-			<p class="similar-hint">{T.user.similar.hint}</p>
 		{/if}
 	</div>
 
@@ -444,12 +443,6 @@
 		height: 100%;
 		background: var(--accent);
 		border-radius: 9999px;
-	}
-
-	.similar-hint {
-		font-size: 0.75rem;
-		color: var(--text-subtle);
-		margin-top: var(--space-1);
 	}
 
 .cosmic-event {
