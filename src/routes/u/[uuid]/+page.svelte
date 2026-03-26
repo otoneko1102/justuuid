@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import TwitterBirdIcon from '$lib/components/icons/TwitterBirdIcon.svelte';
 	import type { UserWithScore } from '$lib/types';
 	import type { PageData } from './$types';
 
@@ -25,6 +26,15 @@
 	let similarTotalCount = $state(0);
 	let isLoadingMoreSimilar = $state(false);
 	const shareUrl = $derived(`${data.origin}/u/${data.user.id}`);
+	const tweetButtonLabel = $derived(
+		data.lang === 'ja' ? 'ツイートする' : 'Tweet',
+	);
+	const tweetText = $derived(
+		`${data.user.username} のUUIDは ${data.user.id} です！\n#JustUUID #UUIDv4\n${shareUrl}`,
+	);
+	const tweetIntentUrl = $derived(
+		`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
+	);
 	const badgeSnippet = $derived(
 		`<a href="${data.origin}/u/${data.user.id}" target="_blank" rel="noopener noreferrer">\n  <img src="${data.origin}/api/badge/u/${data.user.id}.svg" alt="UUID Badge" />\n</a>`,
 	);
@@ -137,6 +147,18 @@
 							{/if}
 						</button>
 					</div>
+				</div>
+				<div class="share-row tweet-row">
+					<a
+						class="btn-twitter"
+						href={tweetIntentUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={tweetButtonLabel}
+					>
+						<TwitterBirdIcon size={16} />
+						<span>{tweetButtonLabel}</span>
+					</a>
 				</div>
 				<div class="share-row badge-row">
 					<div class="badge-copy-row">
@@ -326,6 +348,10 @@
 		color: var(--text-muted);
 	}
 
+	.tweet-row {
+		margin-top: var(--space-2);
+	}
+
 	.badge-row {
 		margin-top: var(--space-2);
 		padding-top: var(--space-2);
@@ -396,6 +422,30 @@
 		height: 30px;
 		padding: 0 var(--space-2);
 		gap: 4px;
+	}
+
+	.btn-twitter {
+		display: inline-flex;
+		align-items: center;
+		align-self: flex-start;
+		gap: 6px;
+		height: 32px;
+		padding: 0 var(--space-3);
+		border-radius: var(--radius-sm);
+		border: 1px solid #1d9bf0;
+		background: #1d9bf0;
+		color: #fff;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition:
+			background 0.15s ease,
+			border-color 0.15s ease;
+	}
+
+	.btn-twitter:hover {
+		background: #1a8cd8;
+		border-color: #1a8cd8;
 	}
 
 	.profile-card {
