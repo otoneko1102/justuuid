@@ -1,17 +1,81 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import type { SimilarityPair } from '$lib/types';
 	import type { PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	type RankingPageData = PageData & {
+		totalCount?: number;
+	};
+
+	let { data }: { data: RankingPageData } = $props();
 
 	const T = $derived(t(data.lang));
 	const MEDAL = ['#1', '#2', '#3'];
+	const loadMoreLabel = $derived(
+		data.lang === 'ja' ? 'もっと見る' : 'Load more',
+	);
+	const loadingLabel = $derived(
+		data.lang === 'ja' ? '読み込み中...' : 'Loading...',
+	);
+	const RANKING_PAGE_SIZE = 20;
+
+	let visiblePairs = $state<SimilarityPair[]>([]);
+	let totalCount = $state(0);
+	let isLoadingMore = $state(false);
 
 	function rankClass(index: number): string {
 		if (index === 0) return 'rank-gold';
 		if (index === 1) return 'rank-silver';
 		if (index === 2) return 'rank-bronze';
 		return '';
+	}
+
+	$effect(() => {
+		visiblePairs = data.pairs;
+		totalCount = data.totalCount ?? data.pairs.length;
+		isLoadingMore = false;
+	});
+
+	async function loadMorePairs() {
+		if (isLoadingMore || visiblePairs.length >= totalCount) {
+			return;
+		}
+
+		isLoadingMore = true;
+
+		try {
+			const response = await fetch('/api/ranking', {
+				method: 'POST',
+				headers: {
+					'content-type': 'application/json',
+				},
+				body: JSON.stringify({
+					offset: visiblePairs.length,
+					limit: RANKING_PAGE_SIZE,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch ranking pairs');
+			}
+
+			const payload = (await response.json()) as {
+				pairs: SimilarityPair[];
+				totalCount: number;
+			};
+			const existingKeys = new Set(
+				visiblePairs.map((pair) => `${pair.uuid_a}:${pair.uuid_b}`),
+			);
+			visiblePairs = [
+				...visiblePairs,
+				...payload.pairs.filter(
+					(pair) => !existingKeys.has(`${pair.uuid_a}:${pair.uuid_b}`),
+				),
+			];
+			totalCount = payload.totalCount;
+		} finally {
+			isLoadingMore = false;
+		}
 	}
 </script>
 
@@ -29,7 +93,7 @@
 		<p class="ranking-subtitle">{T.ranking.subtitle}</p>
 	</div>
 
-	{#if data.pairs.length === 0}
+	{#if visiblePairs.length === 0}
 		<div class="empty-state">
 			<span class="mi empty-icon">group_add</span>
 			<p class="empty-text">{T.ranking.empty}</p>
@@ -39,7 +103,7 @@
 		</div>
 	{:else}
 		<ol class="pairs-list">
-			{#each data.pairs as pair, index}
+			{#each visiblePairs as pair, index}
 				<li class="pair-card {rankClass(index)}">
 					<div class="pair-rank">
 						{#if index < 3}
@@ -95,6 +159,22 @@
 				</li>
 			{/each}
 		</ol>
+		{#if visiblePairs.length < totalCount}
+			<div class="ranking-more">
+				<button
+					type="button"
+					class="btn btn-ghost"
+					onclick={loadMorePairs}
+					disabled={isLoadingMore}
+				>
+					{#if isLoadingMore}
+						{loadingLabel}
+					{:else}
+						{loadMoreLabel}
+					{/if}
+				</button>
+			</div>
+		{/if}
 	{/if}
 </div>
 
@@ -162,6 +242,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-3);
+	}
+
+	.ranking-more {
+		display: flex;
+		justify-content: center;
+		margin-top: var(--space-4);
 	}
 
 	.pair-card {

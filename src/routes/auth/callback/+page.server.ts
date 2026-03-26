@@ -9,13 +9,18 @@ import {
 	replaceSimilarityPairs,
 } from '$lib/db';
 import { topPairs } from '$lib/similarity';
+import { MAX_GLOBAL_RANKING_PAIRS } from '$lib/ranking';
 
 /** Fire-and-forget: recompute the global similarity ranking. Never throws. */
 async function refreshGlobalSimilarityPairs(
 	db: Parameters<typeof getAllUserIds>[0],
 ): Promise<void> {
 	const allIds = await getAllUserIds(db);
-	const pairs = topPairs(allIds, 100);
+	const maxPairs = Math.min(
+		MAX_GLOBAL_RANKING_PAIRS,
+		Math.floor((allIds.length * (allIds.length - 1)) / 2),
+	);
+	const pairs = topPairs(allIds, maxPairs);
 	await replaceSimilarityPairs(db, pairs);
 }
 

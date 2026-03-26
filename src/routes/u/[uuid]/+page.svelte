@@ -1,14 +1,29 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import type { UserWithScore } from '$lib/types';
 	import type { PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	type UserPageData = PageData & {
+		similarTotalCount?: number;
+	};
+
+	let { data }: { data: UserPageData } = $props();
 
 	const T = $derived(t(data.lang));
+	const loadMoreLabel = $derived(
+		data.lang === 'ja' ? 'もっと見る' : 'Load more',
+	);
+	const loadingLabel = $derived(
+		data.lang === 'ja' ? '読み込み中...' : 'Loading...',
+	);
+	const SIMILAR_PAGE_SIZE = 10;
 
 	let copied = $state(false);
 	let copiedUrl = $state(false);
 	let copiedBadge = $state(false);
+	let similarUsers = $state<UserWithScore[]>([]);
+	let similarTotalCount = $state(0);
+	let isLoadingMoreSimilar = $state(false);
 	const shareUrl = $derived(`${data.origin}/u/${data.user.id}`);
 	const badgeSnippet = $derived(
 		`<a href="${data.origin}/u/${data.user.id}" target="_blank" rel="noopener noreferrer">\n  <img src="${data.origin}/api/badge/u/${data.user.id}.svg" alt="UUID Badge" />\n</a>`,
@@ -44,6 +59,50 @@
 			day: 'numeric',
 		});
 	}
+
+	$effect(() => {
+		similarUsers = data.similarUsers;
+		similarTotalCount = data.similarTotalCount ?? data.similarUsers.length;
+		isLoadingMoreSimilar = false;
+	});
+
+	async function loadMoreSimilarUsers() {
+		if (isLoadingMoreSimilar || similarUsers.length >= similarTotalCount) {
+			return;
+		}
+
+		isLoadingMoreSimilar = true;
+
+		try {
+			const response = await fetch(`/api/similar/${data.user.id}`, {
+				method: 'POST',
+				headers: {
+					'content-type': 'application/json',
+				},
+				body: JSON.stringify({
+					offset: similarUsers.length,
+					limit: SIMILAR_PAGE_SIZE,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch similar users');
+			}
+
+			const payload = (await response.json()) as {
+				users: UserWithScore[];
+				total: number;
+			};
+			const existingIds = new Set(similarUsers.map((user) => user.id));
+			similarUsers = [
+				...similarUsers,
+				...payload.users.filter((user) => !existingIds.has(user.id)),
+			];
+			similarTotalCount = payload.total;
+		} finally {
+			isLoadingMoreSimilar = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -72,23 +131,6 @@
 						<span class="mono share-link">{shareUrl}</span>
 						<button class="btn-copy" onclick={copyUrl} title={T.user.copyUrl}>
 							{#if copiedUrl}
-								<span class="mi mi-sm">check</span>
-							{:else}
-								<span class="mi mi-sm">content_copy</span>
-							{/if}
-						</button>
-					</div>
-				</div>
-				<div class="share-row badge-row">
-					<span class="share-label">{T.user.badgeHint}</span>
-					<div class="badge-snippet-row">
-						<pre class="mono badge-snippet">{badgeSnippet}</pre>
-						<button
-							class="btn-copy"
-							onclick={copyBadge}
-							title={T.user.copyBadge}
-						>
-							{#if copiedBadge}
 								<span class="mi mi-sm">check</span>
 							{:else}
 								<span class="mi mi-sm">content_copy</span>
@@ -148,28 +190,33 @@
 		</p>
 	</div>
 
-	<div class="badge-section">
-		<div class="badge-section-header">
-			<span class="mi mi-sm" style="color: var(--text-subtle)">code</span>
-			<span class="badge-section-title">{T.user.badgeLabel}</span>
+	{#if data.isOwner}
+		<div class="badge-section">
+			<div class="badge-section-header">
+				<span class="mi mi-sm" style="color: var(--text-subtle)">code</span>
+				<span class="badge-section-title">{T.user.badgeLabel}</span>
+			</div>
+			<div class="badge-preview">
+				<img
+					src={`${data.origin}/api/badge/u/${data.user.id}.svg`}
+					alt="UUID Badge"
+				/>
+			</div>
+			<div class="share-row">
+				<span class="share-label">{T.user.badgeHint}</span>
+			</div>
+			<div class="badge-snippet-row">
+				<pre class="mono badge-snippet">{badgeSnippet}</pre>
+				<button class="btn-copy" onclick={copyBadge} title={T.user.copyBadge}>
+					{#if copiedBadge}
+						<span class="mi mi-sm">check</span>
+					{:else}
+						<span class="mi mi-sm">content_copy</span>
+					{/if}
+				</button>
+			</div>
 		</div>
-		<div class="badge-preview">
-			<img
-				src={`${data.origin}/api/badge/u/${data.user.id}.svg`}
-				alt="UUID Badge"
-			/>
-		</div>
-		<div class="badge-snippet-row">
-			<pre class="mono badge-snippet">{badgeSnippet}</pre>
-			<button class="btn-copy" onclick={copyBadge} title={T.user.copyBadge}>
-				{#if copiedBadge}
-					<span class="mi mi-sm">check</span>
-				{:else}
-					<span class="mi mi-sm">content_copy</span>
-				{/if}
-			</button>
-		</div>
-	</div>
+	{/if}
 
 	<div class="similar-section">
 		<div class="similar-header">
@@ -178,11 +225,11 @@
 			>
 			<span class="similar-title">{T.user.similar.title}</span>
 		</div>
-		{#if data.similarUsers.length === 0}
+		{#if similarUsers.length === 0}
 			<p class="similar-empty">{T.user.similar.empty}</p>
 		{:else}
 			<ul class="similar-list">
-				{#each data.similarUsers as su}
+				{#each similarUsers as su}
 					<li class="similar-item">
 						<a href="/u/{su.id}" class="similar-link">
 							<img
@@ -192,8 +239,7 @@
 							/>
 							<div class="similar-info">
 								<span class="similar-username">@{su.username}</span>
-								<span class="uuid mono similar-uuid"
-									>{su.id.slice(0, 8)}...</span
+								<span class="uuid mono similar-uuid" title={su.id}>{su.id}</span
 								>
 							</div>
 							<div class="similar-score-wrap">
@@ -209,6 +255,22 @@
 					</li>
 				{/each}
 			</ul>
+			{#if similarUsers.length < similarTotalCount}
+				<div class="similar-more">
+					<button
+						type="button"
+						class="btn btn-ghost"
+						onclick={loadMoreSimilarUsers}
+						disabled={isLoadingMoreSimilar}
+					>
+						{#if isLoadingMoreSimilar}
+							{loadingLabel}
+						{:else}
+							{loadMoreLabel}
+						{/if}
+					</button>
+				</div>
+			{/if}
 		{/if}
 	</div>
 
@@ -308,12 +370,6 @@
 		background: var(--surface);
 		color: var(--accent);
 		border-color: var(--accent);
-	}
-
-	.badge-row {
-		margin-top: var(--space-1);
-		padding-top: var(--space-2);
-		border-top: 1px solid rgba(129, 140, 248, 0.1);
 	}
 
 	.badge-snippet-row {
@@ -457,6 +513,9 @@
 		color: var(--accent);
 		letter-spacing: 0.01em;
 		white-space: nowrap;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scrollbar-width: thin;
 		padding: var(--space-3) var(--space-4);
 		background: var(--bg);
 		border: 1px solid var(--border);
@@ -516,6 +575,12 @@
 		gap: var(--space-2);
 	}
 
+	.similar-more {
+		display: flex;
+		justify-content: center;
+		margin-top: var(--space-1);
+	}
+
 	.similar-item {
 		border-radius: var(--radius-sm);
 	}
@@ -562,11 +627,15 @@
 	}
 
 	.similar-uuid {
-		font-size: 0.625rem;
+		display: block;
+		font-size: clamp(0.56rem, 0.5rem + 0.22vw, 0.7rem);
 		color: var(--text-subtle);
 		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+		overflow-x: auto;
+		overflow-y: hidden;
+		text-overflow: clip;
+		line-height: 1.35;
+		scrollbar-width: thin;
 	}
 
 	.similar-score-wrap {
@@ -653,7 +722,7 @@
 		}
 
 		.uuid {
-			font-size: 0.62rem;
+			font-size: 0.58rem;
 			padding: var(--space-2) var(--space-3);
 		}
 
@@ -668,6 +737,10 @@
 
 		.badge-snippet {
 			font-size: 0.625rem;
+		}
+
+		.similar-uuid {
+			font-size: 0.54rem;
 		}
 	}
 </style>

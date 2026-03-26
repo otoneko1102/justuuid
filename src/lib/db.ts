@@ -264,6 +264,15 @@ export async function getTopSimilarityPairs(
 	db: D1Database,
 	limit = 50,
 ): Promise<SimilarityPair[]> {
+	return listSimilarityPairs(db, limit, 0);
+}
+
+/** Fetch similarity pairs with pagination, sorted by score DESC. */
+export async function listSimilarityPairs(
+	db: D1Database,
+	limit = 50,
+	offset = 0,
+): Promise<SimilarityPair[]> {
 	const { results } = await db
 		.prepare(
 			`SELECT
@@ -278,9 +287,18 @@ export async function getTopSimilarityPairs(
       JOIN users ua ON ua.id = sp.uuid_a
       JOIN users ub ON ub.id = sp.uuid_b
       ORDER BY sp.score DESC
-      LIMIT ?`,
+      LIMIT ?
+      OFFSET ?`,
 		)
-		.bind(limit)
+		.bind(limit, offset)
 		.all<SimilarityPair>();
 	return results;
+}
+
+/** Returns the total number of rows in similarity_pairs. */
+export async function countSimilarityPairs(db: D1Database): Promise<number> {
+	const row = await db
+		.prepare('SELECT COUNT(*) as cnt FROM similarity_pairs')
+		.first<{ cnt: number }>();
+	return row?.cnt ?? 0;
 }

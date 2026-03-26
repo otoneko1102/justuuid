@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getUserById, getAllUserIds, getUsersByIds } from '$lib/db';
-import { topSimilar } from '$lib/similarity';
+import { getUserById } from '$lib/db';
+import { getSimilarUsersPage } from '$lib/similar-users';
 import type { UserWithScore } from '$lib/types';
 
 export const load: PageServerLoad = async ({
@@ -28,28 +28,22 @@ export const load: PageServerLoad = async ({
 	}
 
 	const isOwner = locals.user?.id === user.id;
+	const INITIAL_SIMILAR_LIMIT = 10;
 
-	// Fetch similar users in parallel with nothing else (allIds needed first).
 	let similarUsers: UserWithScore[] = [];
+	let similarTotalCount = 0;
 	try {
-		const allIds = await getAllUserIds(db);
-		const topResults = topSimilar(user.id, allIds, 5);
-		if (topResults.length > 0) {
-			const topIds = topResults.map((r) => r.id);
-			const users = await getUsersByIds(db, topIds);
-			// Build a score map and preserve order.
-			const scoreMap = new Map(topResults.map((r) => [r.id, r.score]));
-			similarUsers = topIds
-				.map((id) => {
-					const u = users.find((u) => u.id === id);
-					return u ? { ...u, score: scoreMap.get(id) ?? 0 } : null;
-				})
-				.filter((u): u is UserWithScore => u !== null);
-		}
+		const similarPage = await getSimilarUsersPage(db, user.id, {
+			offset: 0,
+			limit: INITIAL_SIMILAR_LIMIT,
+		});
+		similarUsers = similarPage.users;
+		similarTotalCount = similarPage.total;
 	} catch {
 		// Non-fatal: similarity section simply won't appear.
 		similarUsers = [];
+		similarTotalCount = 0;
 	}
 
-	return { user, isOwner, origin: url.origin, similarUsers };
+	return { user, isOwner, origin: url.origin, similarUsers, similarTotalCount };
 };

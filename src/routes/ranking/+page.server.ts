@@ -1,37 +1,24 @@
 import type { PageServerLoad } from './$types';
-import {
-	ensureSimilarityPairsSchema,
-	getAllUserIds,
-	getTopSimilarityPairs,
-	replaceSimilarityPairs,
-} from '$lib/db';
-import { topPairs } from '$lib/similarity';
+import { countSimilarityPairs, listSimilarityPairs } from '$lib/db';
+import { ensureRankingData } from '$lib/ranking';
 
 export const load: PageServerLoad = async ({ platform }) => {
 	const db = platform?.env?.DB;
+	const INITIAL_RANKING_LIMIT = 20;
 
 	if (!db) {
-		return { pairs: [] };
+		return { pairs: [], totalCount: 0 };
 	}
 
 	try {
-		await ensureSimilarityPairsSchema(db);
-		let pairs = await getTopSimilarityPairs(db, 50);
+		await ensureRankingData(db);
+		const [pairs, totalCount] = await Promise.all([
+			listSimilarityPairs(db, INITIAL_RANKING_LIMIT, 0),
+			countSimilarityPairs(db),
+		]);
 
-		// Backfill ranking table on-demand if it is empty.
-		// This avoids blank ranking pages when `similarity_pairs` has not been populated yet.
-		if (pairs.length === 0) {
-			const allIds = await getAllUserIds(db);
-
-			if (allIds.length >= 2) {
-				const computedPairs = topPairs(allIds, 100);
-				await replaceSimilarityPairs(db, computedPairs);
-				pairs = await getTopSimilarityPairs(db, 50);
-			}
-		}
-
-		return { pairs };
+		return { pairs, totalCount };
 	} catch {
-		return { pairs: [] };
+		return { pairs: [], totalCount: 0 };
 	}
 };
