@@ -1,6 +1,7 @@
 # JustUUID
 
 ![JustUUID Users](https://justuuid.pages.dev/api/badge/users.svg)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
 
 **Your permanent identity, one UUID at a time.**
 
