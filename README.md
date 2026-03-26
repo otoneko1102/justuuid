@@ -3,76 +3,80 @@
 ![JustUUID Users](https://justuuid.pages.dev/api/badge/users.svg)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
 
+English | [日本語](./README-ja.md)
+
 **Your permanent identity, one UUID at a time.**
 
-JustUUID は GitHub アカウントごとに **永続UUID v4** を 1 つ割り当てるサービスです。  
-公開プロフィールURLと、READMEに貼れるバッジを提供します。
+JustUUID is a web service that assigns one permanent UUID v4 to each GitHub account.
+It provides a public profile page and README-friendly SVG badges.
 
 Live: [https://justuuid.pages.dev](https://justuuid.pages.dev)
 
-## 主な機能
+## Features
 
-- GitHub OAuth ログインで UUID を発行（同じアカウントは同じUUIDを維持）
-- 公開プロフィールページ `/u/{uuid}`
-- `/?user={github-username}` でユーザー検索（大文字小文字を区別しない）
-- トップのユーザー一覧
-  - ランダム / 新しい順 / 古い順
-  - 「もっと見る」で追加表示（ページ再読み込みなし）
-- 各ユーザーの類似UUIDランキング
-  - 初期10件表示
-  - 「もっと見る」で10件ずつ追加
-- 全体UUID類似度ランキング `/ranking`
-  - 初期20件表示
-  - 「もっと見る」で20件ずつ追加
-  - 自動更新（ユーザー数変化 or 6時間経過時）
-- README向けSVGバッジ API
+- GitHub OAuth login and UUID issuance
+- Stable UUID mapping for the same GitHub account
+- Public profile page: `/u/{uuid}`
+- Username lookup via `/?user={github-username}` (case-insensitive)
+- Home user list with:
+  - Random / Newest / Oldest sorting
+  - "Load more" without page reload
+- Per-user similarity ranking:
+  - Initial 10 results
+  - +10 results per "Load more"
+- Global UUID similarity ranking (`/ranking`):
+  - Initial 20 results
+  - +20 results per "Load more"
+  - Auto refresh (when user count changes or every 6 hours)
+- SVG badge endpoints for README
 
-## SVG バッジ
+## SVG Badges
 
-登録ユーザー数:
+Registered user count:
 
 ```md
 ![JustUUID Users](https://justuuid.pages.dev/api/badge/users.svg)
 ```
 
-GitHubユーザー名からUUID:
+UUID by GitHub username:
 
 ```md
 ![octocat UUID](https://justuuid.pages.dev/api/badge/user/octocat.svg)
 ```
 
-UUID指定:
+UUID by UUID:
 
 ```md
 ![UUID badge](https://justuuid.pages.dev/api/badge/u/00000000-0000-4000-8000-000000000000.svg)
 ```
 
-エンドポイント:
+Endpoints:
 
 - `GET /api/badge/users.svg`
 - `GET /api/badge/user/{github-username}.svg`
 - `GET /api/badge/u/{uuid}.svg`
 
-## 公開ページ
+## Public Pages
 
 - Home: `/`
 - Ranking: `/ranking`
 - Privacy Policy: `/privacy-policy`
 - Terms of Service: `/terms-of-service`
 
-## データとセキュリティ
+## Security Notes
 
-このリポジトリには以下の**秘密情報は含めません**。
+This repository must not contain secrets such as:
 
 - `GITHUB_CLIENT_SECRET`
 - `JWT_SECRET`
 
-`database_id` は D1 バインディングの識別子であり、認証情報そのものではありません。  
-実際の機密値（OAuthシークレット/JWTシークレット）は Cloudflare 側の環境変数で管理します。
+`database_id` is a resource identifier, not a secret credential.
+Sensitive values are managed via Cloudflare environment variables.
 
-## 開発者向け
+## Developer Docs
 
-セットアップ・運用・デプロイ詳細は [README-dev.md](./README-dev.md) を参照してください。
+- English: [README-dev.md](./README-dev.md)
+- Japanese: [README-dev-ja.md](./README-dev-ja.md)
 
 ## License
 

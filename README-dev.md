@@ -1,31 +1,33 @@
 # JustUUID Developer Guide
 
-このドキュメントは、JustUUID の開発・運用を行う人向けの詳細ガイドです。
+English | [日本語](./README-dev-ja.md)
 
-## 1. アーキテクチャ概要
+This document is the detailed developer and operations guide for JustUUID.
+
+## 1. Architecture
 
 - Framework: SvelteKit (Svelte 5)
 - Runtime: Cloudflare Pages Functions
-- DB: Cloudflare D1 (`DB` binding)
+- Database: Cloudflare D1 (`DB` binding)
 - Auth: GitHub OAuth
 - Session: JWT cookie (`session`)
 
-主要データ:
+Core tables:
 
-- `users` テーブル: ユーザー基本情報 + UUID
-- `similarity_pairs` テーブル: 全体類似度ランキング用ペア
-- `ranking_meta` テーブル: ランキングの更新状態（自動作成）
+- `users`: user identity data + UUID
+- `similarity_pairs`: global UUID similarity ranking
+- `ranking_meta`: ranking refresh metadata (auto-created)
 
-## 2. 前提条件
+## 2. Prerequisites
 
 - Node.js 20+
 - npm
-- Cloudflare アカウント
+- Cloudflare account
 - GitHub OAuth App
 
-## 3. 初期セットアップ
+## 3. Setup
 
-### 3.1 リポジトリ
+### 3.1 Clone and install
 
 ```bash
 git clone <your-repo-url>
@@ -33,17 +35,17 @@ cd justuuid
 npm install
 ```
 
-### 3.2 GitHub OAuth App
+### 3.2 Create GitHub OAuth App
 
-GitHub で OAuth App を作成し、以下を設定:
+Configure:
 
 - Homepage URL: `https://justuuid.pages.dev`
 - Authorization callback URL: `https://justuuid.pages.dev/auth/callback`
-- ローカル用 callback: `http://localhost:5173/auth/callback`
+- Local callback URL: `http://localhost:5173/auth/callback`
 
-### 3.3 ローカル環境変数
+### 3.3 Local secrets
 
-`.dev.vars` を作成（`.dev.vars.example` を参照）:
+Create `.dev.vars` (based on `.dev.vars.example`):
 
 ```txt
 GITHUB_CLIENT_ID=...
@@ -51,119 +53,105 @@ GITHUB_CLIENT_SECRET=...
 JWT_SECRET=...
 ```
 
-`JWT_SECRET` は 32文字以上推奨:
+Recommended JWT secret generation:
 
 ```bash
 openssl rand -hex 32
 ```
 
-### 3.4 D1 データベース
+### 3.4 D1 database
 
-初回作成:
+Create database:
 
 ```bash
 npx wrangler login
 npx wrangler d1 create justuuid-db
 ```
 
-スキーマ適用:
+Run migrations:
 
 ```bash
-# リモート
+# remote
 npm run db:migrate:remote
 
-# ローカル
+# local
 npm run db:migrate:local
 ```
 
-## 4. 実行方法
-
-### 4.1 通常のローカル開発
+## 4. Development Commands
 
 ```bash
 npm run dev
-```
-
-### 4.2 型チェック/整形
-
-```bash
 npm run check
 npm run format:check
 npm run format
 ```
 
-### 4.3 Cloudflare Pages 互換での確認
+Cloudflare-compatible local run:
 
 ```bash
 npm run build
 npx wrangler pages dev .svelte-kit/cloudflare
 ```
 
-## 5. Cloudflare 設定方針
+## 5. Cloudflare Configuration
 
-### 5.1 `wrangler.jsonc`
+`wrangler.jsonc` defines D1 binding metadata (`DB`) for this project.
+Do not store secrets in the repository.
 
-このリポジトリの `wrangler.jsonc` には D1 binding (`DB`) が定義されています。  
-環境変数の秘密値は入れません。
-
-### 5.2 ダッシュボードで管理する値
-
-Cloudflare Pages 側で以下を設定:
+Set these in Cloudflare Pages environment variables:
 
 - `GITHUB_CLIENT_ID`
 - `GITHUB_CLIENT_SECRET`
 - `JWT_SECRET`
-- D1 binding `DB`（必要に応じて確認）
 
-## 6. 全体ランキング更新戦略（重要）
+## 6. Global Ranking Refresh Strategy
 
-全体ランキングは `similarity_pairs` を参照します。  
-再計算は重いため、無料枠を考慮して「必要時のみ」実行します。
+Global ranking reads from `similarity_pairs`.
+To keep D1/Workers usage within free-tier-friendly limits, refresh is conditional.
 
-更新トリガー:
+Refresh triggers:
 
-- `similarity_pairs` が空
-- 前回更新時からユーザー数が変化
-- 前回更新から 6 時間経過
+- `similarity_pairs` is empty
+- user count has changed since last refresh
+- last refresh is older than 6 hours
 
-制御:
+Concurrency and safety:
 
-- `ranking_meta` に更新時刻・ユーザー数スナップショットを保存
-- 同時更新防止ロック（10分タイムアウト）
-- 上位 `MAX_GLOBAL_RANKING_PAIRS`（現在 500）まで保存
+- refresh lock with timeout (to prevent duplicate heavy recomputations)
+- metadata stored in `ranking_meta`
+- if refresh fails, existing ranking remains untouched
 
-実装:
+Relevant files:
 
 - `src/lib/ranking.ts`
 - `src/routes/ranking/+page.server.ts`
 - `src/routes/api/ranking/+server.ts`
 
-## 7. ユーザー個別類似ランキング
+## 7. Per-user Similarity Ranking
 
-`/u/{uuid}` の「最も近いUUID」は都度計算です（初期10件、追加10件）。
+Per-user similarity is computed on demand.
 
-実装:
+- initial: 10 rows
+- load more: +10 rows
+- no full page reload
+
+Relevant files:
 
 - `src/lib/similar-users.ts`
 - `src/routes/u/[uuid]/+page.server.ts`
 - `src/routes/api/similar/[uuid]/+server.ts`
 
-## 8. 主要 API エンドポイント
+## 8. Main API Endpoints
 
-- `POST /api/users`  
-  ホーム一覧のソート/追加読み込み
-- `POST /api/similar/{uuid}`  
-  個別類似ランキングの追加読み込み
-- `POST /api/ranking`  
-  全体ランキングの追加読み込み
-- `GET /api/badge/users.svg`  
-  登録ユーザー数バッジ
-- `GET /api/badge/user/{github-username}.svg`  
-  GitHubユーザー名指定のUUIDバッジ
-- `GET /api/badge/u/{uuid}.svg`  
-  UUID指定バッジ
+- `POST /api/users`
+- `POST /api/similar/{uuid}`
+- `POST /api/ranking`
+- `GET /api/badge/users.svg`
+- `GET /api/badge/user/{github-username}.svg`
+- `GET /api/badge/u/{uuid}.svg`
 
-## 9. ディレクトリ早見
+## 9. Directory Map
 
 ```txt
 src/
@@ -183,36 +171,33 @@ migrations/
   0002_similarity_pairs.sql
 ```
 
-## 10. デプロイ
+## 10. Deploy
 
 ```bash
 npm run deploy
 ```
 
-手動で明示する場合:
+Manual equivalent:
 
 ```bash
 npm run build
 npx wrangler pages deploy .svelte-kit/cloudflare --project-name justuuid
 ```
 
-## 11. トラブルシュート
+## 11. Troubleshooting
 
-### ランキングが更新されない
+### Ranking not updating
 
-- `/ranking` を開いても更新されない場合は、`ranking_meta` の更新条件を満たしているか確認
-- Cloudflare Logs で関数エラー確認
-- D1 に `users` / `similarity_pairs` / `ranking_meta` が存在するか確認
+- verify Cloudflare logs for runtime errors
+- verify D1 tables exist: `users`, `similarity_pairs`, `ranking_meta`
+- verify refresh conditions in `src/lib/ranking.ts`
 
-### ログインできない
+### OAuth login errors
 
-- OAuth callback URL を再確認
-- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` / `JWT_SECRET` の設定確認
+- verify callback URLs in GitHub OAuth App
+- verify env vars: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `JWT_SECRET`
 
-### DBエラー
-
-- `DB` binding 名がコードと一致しているか確認
-- マイグレーション再適用:
+### D1 migration issues
 
 ```bash
 npm run db:migrate:remote
