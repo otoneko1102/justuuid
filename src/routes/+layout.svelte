@@ -56,6 +56,11 @@
 					>JA</button>
 				</div>
 
+				<a href="/ranking" class="btn btn-ghost btn-sm">
+					<span class="mi mi-sm">leaderboard</span>
+					{T.nav.ranking}
+				</a>
+
 				{#if data.user}
 					<a href="/u/{data.user.id}" class="btn btn-ghost btn-sm">
 						<img
@@ -101,6 +106,11 @@
 							>JA</button>
 						</div>
 					</div>
+
+					<a href="/ranking" class="mobile-menu-link" onclick={closeMenu}>
+						<span class="mi mi-sm">leaderboard</span>
+						<span>{T.nav.ranking}</span>
+					</a>
 
 					{#if data.user}
 						<a href="/u/{data.user.id}" class="mobile-menu-link" onclick={closeMenu}>

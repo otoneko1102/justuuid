@@ -7,6 +7,20 @@ export interface User {
 	created_at: string;
 }
 
+export interface UserWithScore extends User {
+	score: number;
+}
+
+export interface SimilarityPair {
+	uuid_a: string;
+	uuid_b: string;
+	score: number;
+	username_a: string;
+	avatar_url_a: string;
+	username_b: string;
+	avatar_url_b: string;
+}
+
 export type Lang = 'en' | 'ja';
 
 export interface JWTPayload {
