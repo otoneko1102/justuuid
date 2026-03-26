@@ -46,6 +46,9 @@ export const en = {
 		yourPage: 'This is your unique page.',
 		sharePrompt: 'Share this URL with anyone:',
 		ogDescription: '@{username}\'s permanent UUID is {uuid} — assigned on JustUUID.',
+		badgeLabel: 'GitHub README Badge',
+		badgeHint: 'Paste this into your GitHub README:',
+		copyBadge: 'Copy Badge Code',
 		cosmic: {
 			badge: 'Cosmic Collision',
 			title: 'UUID Collision Detected',

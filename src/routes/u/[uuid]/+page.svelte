@@ -8,7 +8,11 @@
 
 	let copied = $state(false);
 	let copiedUrl = $state(false);
+	let copiedBadge = $state(false);
 	const shareUrl = $derived(`${data.origin}/u/${data.user.id}`);
+	const badgeSnippet = $derived(
+		`<a href="${data.origin}/u/${data.user.id}" target="_blank" rel="noopener noreferrer">\n  <img src="${data.origin}/api/badge/u/${data.user.id}.svg" alt="UUID Badge" />\n</a>`
+	);
 	const ogDesc = $derived(
 		T.user.ogDescription.replace('{username}', data.user.username).replace('{uuid}', data.user.id)
 	);
@@ -23,6 +27,12 @@
 		await navigator.clipboard.writeText(shareUrl).catch(() => {});
 		copiedUrl = true;
 		setTimeout(() => (copiedUrl = false), 2000);
+	}
+
+	async function copyBadge() {
+		await navigator.clipboard.writeText(badgeSnippet).catch(() => {});
+		copiedBadge = true;
+		setTimeout(() => (copiedBadge = false), 2000);
 	}
 
 	function formatDate(iso: string, lang: 'en' | 'ja') {
@@ -67,6 +77,19 @@
 						</button>
 					</div>
 				</div>
+				<div class="share-row badge-row">
+					<span class="share-label">{T.user.badgeHint}</span>
+					<div class="badge-snippet-row">
+						<pre class="mono badge-snippet">{badgeSnippet}</pre>
+						<button class="btn-copy" onclick={copyBadge} title={T.user.copyBadge}>
+							{#if copiedBadge}
+								<span class="mi mi-sm">check</span>
+							{:else}
+								<span class="mi mi-sm">content_copy</span>
+							{/if}
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	{/if}
@@ -102,7 +125,25 @@
 			{T.user.memberSince} {formatDate(data.user.created_at, data.lang)}
 		</p>
 	</div>
-	<div class="similar-section">
+	<div class="badge-section">
+		<div class="badge-section-header">
+			<span class="mi mi-sm" style="color: var(--text-subtle)">code</span>
+			<span class="badge-section-title">{T.user.badgeLabel}</span>
+		</div>
+		<div class="badge-preview">
+			<img src="{data.origin}/api/badge/u/{data.user.id}.svg" alt="UUID Badge" />
+		</div>
+		<div class="badge-snippet-row">
+			<pre class="mono badge-snippet">{badgeSnippet}</pre>
+			<button class="btn-copy" onclick={copyBadge} title={T.user.copyBadge}>
+				{#if copiedBadge}
+					<span class="mi mi-sm">check</span>
+				{:else}
+					<span class="mi mi-sm">content_copy</span>
+				{/if}
+			</button>
+		</div>
+	 <div class="similar-section">
 		<div class="similar-header">
 			<span class="mi mi-sm" style="color: var(--text-subtle)">compare_arrows</span>
 			<span class="similar-title">{T.user.similar.title}</span>
@@ -228,6 +269,67 @@
 		background: var(--surface);
 		color: var(--accent);
 		border-color: var(--accent);
+	}
+
+	.badge-row {
+		margin-top: var(--space-1);
+		padding-top: var(--space-2);
+		border-top: 1px solid rgba(129, 140, 248, 0.1);
+	}
+
+	.badge-snippet-row {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-2);
+		min-width: 0;
+	}
+
+	.badge-snippet {
+		font-size: 0.6875rem;
+		color: var(--text);
+		word-break: break-all;
+		white-space: pre-wrap;
+		min-width: 0;
+		margin: 0;
+		line-height: 1.5;
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		padding: var(--space-2) var(--space-3);
+		flex: 1;
+	}
+
+	.badge-section {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: var(--space-4) var(--space-5);
+	}
+
+	.badge-section-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+
+	.badge-section-title {
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--text-muted);
+	}
+
+	.badge-preview {
+		display: flex;
+		justify-content: center;
+		padding: var(--space-2) 0;
+	}
+
+	.badge-preview img {
+		height: 20px;
 	}
 .profile-card {
 		width: 100%;
@@ -506,6 +608,14 @@
 		.cosmic-event {
 			padding: var(--space-3) var(--space-4);
 			gap: var(--space-3);
+		}
+
+		.badge-section {
+			padding: var(--space-3) var(--space-4);
+		}
+
+		.badge-snippet {
+			font-size: 0.625rem;
 		}
 	}
 </style>
